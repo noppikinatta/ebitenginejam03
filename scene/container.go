@@ -15,7 +15,7 @@ type Container struct {
 	transitions map[int]int
 }
 
-func NewContainer(scenes []Scene) *Container {
+func NewContainer(scenes ...Scene) *Container {
 	c := Container{
 		scenes:      scenes,
 		currentIdx:  0,
