@@ -14,6 +14,14 @@ type ProposalProcessor interface {
 	Process(proposal *Proposal)
 }
 
+type ProposalProcessorCollection []ProposalProcessor
+
+func (pp ProposalProcessorCollection) Process(proposal *Proposal) {
+	for _, p := range pp {
+		p.Process(proposal)
+	}
+}
+
 type ProposalProcessorAccelerate struct {
 	Value float64
 }

@@ -45,8 +45,12 @@ func (b *HitBox) BoundRight(x float64) {
 }
 
 func (b *HitBox) MultiplyVelocity(v float64) {
-	b.Velocity.X *= v
-	b.Velocity.Y *= v
+	a := b.Velocity.Abs()
+	r := b.Velocity.Direction360()
+
+	a *= v
+
+	b.Velocity = PointFFromPolar(a, r)
 }
 
 func (b *HitBox) AddRotateVelocity(v float64) {
