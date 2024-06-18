@@ -41,6 +41,21 @@ type ProposalProcessorCustomImageName struct {
 	ImageName string
 }
 
-func (p *ProposalProcessorCustomImageName) Procell(proposal *Proposal) {
+func (p *ProposalProcessorCustomImageName) Process(proposal *Proposal) {
 	proposal.CustomImageName = p.ImageName
+}
+
+type ProposalProcessorImprove struct {
+}
+
+func (p *ProposalProcessorImprove) Process(proposal *Proposal) {
+	proposal.Equip.ImprovedCount++
+}
+
+type ProposalProcessorReduceCost struct {
+	Multiplier float64
+}
+
+func (p *ProposalProcessorReduceCost) Process(proposal *Proposal) {
+	proposal.Cost = int(float64(proposal.Cost) * p.Multiplier)
 }
