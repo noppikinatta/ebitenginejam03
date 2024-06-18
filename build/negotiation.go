@@ -57,15 +57,41 @@ func (n *Negotiation) updateProposals() {
 }
 
 func (n *Negotiation) updateProposal(proposal *Proposal) (*Equip, bool) {
-	// proposal old pos and new pos
-	// update proposal pos
-	// bound
-	// determine cross manager // manager position calced from negotiation
-	// process if crossed
-	// if y < 0, go to approved
-	//  - remove from proposals
-	//  - add to approves
+	oldPos := proposal.HitBox.Center()
+	proposal.Update()
+	proposal.HitBox.BoundBottom(n.Size.Y)
+	proposal.HitBox.BoundLeft(0)
+	proposal.HitBox.BoundRight(n.Size.X)
 
+	if n.DecisionMaker.HitLine.IntersectsWith(*proposal.HitBox) {
+		proposal.HitBox.BoundTop(0)
+	}
+
+	newPos := proposal.HitBox.Center()
+
+	for i, m := range n.Managers {
+		hline := n.managerHLine(i)
+		if hline.JustCrossed(oldPos, newPos) {
+			m.Process(proposal)
+		}
+	}
+
+	if proposal.HitBox.Top() < 0 {
+		return proposal.Equip, true
+	}
+
+	return nil, false
+}
+
+func (n *Negotiation) managerHLine(idx int) HorizontalHitLine {
+	y := n.Size.Y * 0.5
+	width := n.Size.X / float64(len(n.Managers))
+	left := width * float64(idx)
+
+	return HorizontalHitLine{
+		Position: PointF{X: left, Y: y},
+		Length:   width,
+	}
 }
 
 func (n *Negotiation) End() bool {

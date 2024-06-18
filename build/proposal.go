@@ -24,6 +24,10 @@ func (p *Proposal) SetVelocity(v PointF) {
 	p.HitBox.Velocity = v
 }
 
+func (p *Proposal) Update() {
+	p.HitBox.Update()
+}
+
 type ProposalLaunchDelay struct {
 	proposal    *Proposal
 	waitingTime int

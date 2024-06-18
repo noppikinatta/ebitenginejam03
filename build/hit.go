@@ -8,6 +8,35 @@ type HitBox struct {
 	RotateVelocity float64
 }
 
+func (b *HitBox) Left() float64 {
+	return b.Position.X
+}
+
+func (b *HitBox) Right() float64 {
+	return b.Position.X + b.Size.X
+}
+
+func (b *HitBox) Top() float64 {
+	return b.Position.Y
+}
+
+func (b *HitBox) Bottom() float64 {
+	return b.Position.Y + b.Size.Y
+}
+
+func (b *HitBox) Center() PointF {
+	return PointF{
+		X: b.Position.X + b.Size.X*0.5,
+		Y: b.Position.Y + b.Size.Y*0.5,
+	}
+}
+
+func (b *HitBox) Update() {
+	b.Position.X += b.Velocity.X
+	b.Position.Y += b.Velocity.Y
+	b.Rotate += b.RotateVelocity
+}
+
 func (b *HitBox) BoundTop(y float64) {
 	if b.Position.Y < y {
 		b.Position.Y = y - b.Position.Y
@@ -94,4 +123,21 @@ func (l *HorizontalHitLine) JustCrossed(pt1, pt2 PointF) bool {
 	f := LinearFuncFromPt(pt1, pt2)
 	x := f.X(l.Position.Y)
 	return l.InXRange(x)
+}
+
+func (l *HorizontalHitLine) IntersectsWith(box HitBox) bool {
+	if box.Left() < l.Left() {
+		return false
+	}
+	if box.Right() > l.Right() {
+		return false
+	}
+	if box.Top() > l.Position.Y {
+		return false
+	}
+	if box.Bottom() < l.Position.Y {
+		return false
+	}
+
+	return true
 }

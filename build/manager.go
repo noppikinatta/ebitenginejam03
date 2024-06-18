@@ -2,7 +2,6 @@ package build
 
 type Manager struct {
 	Name      string
-	Position  *HorizontalHitLine
 	Processor ProposalProcessor
 }
 
