@@ -31,6 +31,13 @@ func (b *HitBox) Center() PointF {
 	}
 }
 
+func (b *HitBox) SetPositionFromCenter(center PointF) {
+	x := center.X - b.Size.X*0.5
+	y := center.Y - b.Size.Y*0.5
+
+	b.Position = PointF{X: x, Y: y}
+}
+
 func (b *HitBox) Update() {
 	b.Position.X += b.Velocity.X
 	b.Position.Y += b.Velocity.Y

@@ -3,7 +3,7 @@ package build
 type Negotiation struct {
 	Size           PointF
 	DecisionMaker  *DecisionMaker
-	Vendors        []*Vendor
+	VendorSelector *VendorSelector
 	Managers       []*Manager
 	Money          int
 	ProposalDelays []*ProposalLaunchDelay
@@ -23,15 +23,23 @@ func (n *Negotiation) updateDecisionMaker(decisionMakerX float64) {
 }
 
 func (n *Negotiation) updateVendors() {
-	// vendor position calced from negotiation area <- use to decide proposal start position
-	for _, v := range n.Vendors {
-		d, ok := v.Update()
-		if !ok {
-			continue
-		}
-
-		n.ProposalDelays = append(n.ProposalDelays, d)
+	vendor, ok := n.VendorSelector.Update()
+	if !ok {
+		return
 	}
+
+	idx := n.VendorSelector.IndexOf(vendor)
+	pos := n.proposalStartPosition(idx, n.VendorSelector.Length())
+
+	pd := vendor.Propose(pos)
+	n.ProposalDelays = append(n.ProposalDelays, pd)
+}
+
+func (n *Negotiation) proposalStartPosition(idx, max int) PointF {
+	width := n.Size.X / float64(max)
+	x := (float64(idx) + 0.5) * width
+
+	return PointF{X: x, Y: n.Size.Y}
 }
 
 func (n *Negotiation) updateProposalDelays() {
