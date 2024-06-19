@@ -1,24 +1,25 @@
 package build
 
 type Manager struct {
-	Name      string
-	Processor ProposalProcessor
+	Name       string
+	Processors []ProposalProcessor
+}
+
+func NewManager(name string, processors ...ProposalProcessor) *Manager {
+	return &Manager{
+		Name:       name,
+		Processors: processors,
+	}
 }
 
 func (m *Manager) Process(proposal *Proposal) {
-	m.Processor.Process(proposal)
+	for _, p := range m.Processors {
+		p.Process(proposal)
+	}
 }
 
 type ProposalProcessor interface {
 	Process(proposal *Proposal)
-}
-
-type ProposalProcessorCollection []ProposalProcessor
-
-func (pp ProposalProcessorCollection) Process(proposal *Proposal) {
-	for _, p := range pp {
-		p.Process(proposal)
-	}
 }
 
 type ProposalProcessorAccelerate struct {
@@ -35,6 +36,14 @@ type ProposalProcessorRotate struct {
 
 func (p *ProposalProcessorRotate) Process(proposal *Proposal) {
 	proposal.AddRotateVelocity(p.Value)
+}
+
+type ProposalProcessorStopRotate struct {
+}
+
+func (p *ProposalProcessorStopRotate) Process(proposal *Proposal) {
+	proposal.RotateVelocity = 0
+	proposal.Rotate = 0
 }
 
 type ProposalProcessorCustomImageName struct {
