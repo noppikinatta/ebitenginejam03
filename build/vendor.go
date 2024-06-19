@@ -7,11 +7,12 @@ import (
 )
 
 type Vendor struct {
+	Name      string
 	proposals []*Proposal
 	rnd       *rand.Rand
 }
 
-func NewVendor(proposals []*Proposal, rnd *rand.Rand) *Vendor {
+func NewVendor(name string, proposals []*Proposal, rnd *rand.Rand) *Vendor {
 	return &Vendor{
 		proposals: proposals,
 		rnd:       rnd,
