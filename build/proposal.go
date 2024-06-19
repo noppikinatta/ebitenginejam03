@@ -36,44 +36,44 @@ func (p *Proposal) BoundTop(y float64) {
 	}
 }
 
-func (b *Proposal) BoundBottom(y float64) {
-	if b.Hit.Bottom() > y {
-		b.Hit.Center.Y -= (b.Hit.Bottom() - y)
+func (p *Proposal) BoundBottom(y float64) {
+	if p.Hit.Bottom() > y {
+		p.Hit.Center.Y -= (p.Hit.Bottom() - y)
 	}
-	if b.Velocity.Y > 0 {
-		b.Velocity.Y *= -1
-	}
-}
-
-func (b *Proposal) BoundLeft(x float64) {
-	if b.Hit.Left() < x {
-		b.Hit.Center.X += (x - b.Hit.Left())
-	}
-	if b.Velocity.X < 0 {
-		b.Velocity.X *= -1
+	if p.Velocity.Y > 0 {
+		p.Velocity.Y *= -1
 	}
 }
 
-func (b *Proposal) BoundRight(x float64) {
-	if b.Hit.Right() > x {
-		b.Hit.Center.X -= (b.Hit.Right() - x)
+func (p *Proposal) BoundLeft(x float64) {
+	if p.Hit.Left() < x {
+		p.Hit.Center.X += (x - p.Hit.Left())
 	}
-	if b.Velocity.X > 0 {
-		b.Velocity.X *= -1
+	if p.Velocity.X < 0 {
+		p.Velocity.X *= -1
 	}
 }
 
-func (b *Proposal) MultiplyVelocity(v float64) {
-	a := b.Velocity.Abs()
-	r := b.Velocity.Direction360()
+func (p *Proposal) BoundRight(x float64) {
+	if p.Hit.Right() > x {
+		p.Hit.Center.X -= (p.Hit.Right() - x)
+	}
+	if p.Velocity.X > 0 {
+		p.Velocity.X *= -1
+	}
+}
+
+func (p *Proposal) MultiplyVelocity(v float64) {
+	a := p.Velocity.Abs()
+	r := p.Velocity.Direction360()
 
 	a *= v
 
-	b.Velocity = geom.PointFFromPolar(a, r)
+	p.Velocity = geom.PointFFromPolar(a, r)
 }
 
-func (b *Proposal) AddRotateVelocity(v float64) {
-	b.RotateVelocity += v
+func (p *Proposal) AddRotateVelocity(v float64) {
+	p.RotateVelocity += v
 }
 
 type ProposalLaunchDelay struct {
