@@ -108,6 +108,14 @@ func (n *Negotiation) End() bool {
 	return n.Money == 0
 }
 
+func (n *Negotiation) Reset(money int) {
+	n.ApprovedEquips = nil
+	n.ProposalDelays = nil
+	n.Proposals = nil
+	n.VendorSelector.Reset()
+	n.Money = money
+}
+
 func convertPartial[T1, T2 any](t1Slice []T1, updateT1Fn func(T1) (T2, bool), processT2Fn func(T2)) []T1 {
 	length := len(t1Slice)
 	if length == 0 {
