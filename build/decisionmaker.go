@@ -1,11 +1,23 @@
 package build
 
+import "github.com/noppikinatta/ebitenginejam03/geom"
+
 type DecisionMaker struct {
-	HitLine *HorizontalHitLine
+	Left     float64
+	Length   float64
+	LinearFn geom.LinearFunc
+}
+
+func NewDecisionMaker(left float64, length float64) *DecisionMaker {
+	return &DecisionMaker{
+		Left:     left,
+		Length:   length,
+		LinearFn: geom.LinearFunc{A: 0, B: 1, C: 0}, // Y = 0
+	}
 }
 
 func (d *DecisionMaker) Update(xCenter float64) {
-	halfLen := d.HitLine.Length / 2
-	newX := xCenter - halfLen
-	d.HitLine.Position.X = newX
+	halfLen := d.Length / 2
+	newX1 := xCenter - halfLen
+	d.Left = newX1
 }

@@ -1,4 +1,4 @@
-package build
+package geom
 
 import "math"
 
@@ -18,6 +18,12 @@ func (p PointF) Direction360() float64 {
 	return 360 * p.DirectionRad() / math.Pi
 }
 
+func (p PointF) Distance(other PointF) float64 {
+	dx := p.X - other.X
+	dy := p.Y - other.Y
+	return math.Sqrt(dx*dx + dy*dy)
+}
+
 func PointFFromPolar(a float64, r360 float64) PointF {
 	rRad := r360 * math.Pi / 180.0
 
@@ -25,23 +31,4 @@ func PointFFromPolar(a float64, r360 float64) PointF {
 	y := a * math.Sin(rRad)
 
 	return PointF{X: x, Y: y}
-}
-
-type LinearFunc struct {
-	Slope, Intercept float64
-}
-
-func LinearFuncFromPt(pt1, pt2 PointF) LinearFunc {
-	slope := (pt2.Y - pt1.Y) / (pt2.X - pt1.X)
-	intercept := pt1.Y - slope*pt1.X
-
-	return LinearFunc{Slope: slope, Intercept: intercept}
-}
-
-func (f LinearFunc) Y(x float64) float64 {
-	return x*f.Slope + f.Intercept
-}
-
-func (f LinearFunc) X(y float64) float64 {
-	return (y - f.Intercept) / f.Slope
 }

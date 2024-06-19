@@ -1,7 +1,9 @@
 package build
 
+import "github.com/noppikinatta/ebitenginejam03/geom"
+
 type Negotiation struct {
-	Size           PointF
+	Size           geom.PointF
 	DecisionMaker  *DecisionMaker
 	VendorSelector *VendorSelector
 	Managers       []*Manager
@@ -35,11 +37,11 @@ func (n *Negotiation) updateVendors() {
 	n.ProposalDelays = append(n.ProposalDelays, pd)
 }
 
-func (n *Negotiation) proposalStartPosition(idx, max int) PointF {
+func (n *Negotiation) proposalStartPosition(idx, max int) geom.PointF {
 	width := n.Size.X / float64(max)
 	x := (float64(idx) + 0.5) * width
 
-	return PointF{X: x, Y: n.Size.Y}
+	return geom.PointF{X: x, Y: n.Size.Y}
 }
 
 func (n *Negotiation) updateProposalDelays() {
@@ -65,40 +67,40 @@ func (n *Negotiation) updateProposals() {
 }
 
 func (n *Negotiation) updateProposal(proposal *Proposal) (*Equip, bool) {
-	oldPos := proposal.HitBox.Center()
+	oldPos := proposal.Hit.Center
 	proposal.Update()
-	proposal.HitBox.BoundBottom(n.Size.Y)
-	proposal.HitBox.BoundLeft(0)
-	proposal.HitBox.BoundRight(n.Size.X)
+	proposal.BoundBottom(n.Size.Y)
+	proposal.BoundLeft(0)
+	proposal.BoundRight(n.Size.X)
 
-	if n.DecisionMaker.HitLine.IntersectsWith(*proposal.HitBox) {
-		proposal.HitBox.BoundTop(0)
+	if n.DecisionMaker.LinearFn.Distance(proposal.Hit.Center) <= proposal.Hit.Radius && proposal.Hit.Center.Y > 0 {
+		proposal.BoundTop(0)
 	}
 
-	newPos := proposal.HitBox.Center()
+	newPos := proposal.Hit.Center
 
 	for i, m := range n.Managers {
 		hline := n.managerHLine(i)
-		if hline.JustCrossed(oldPos, newPos) {
+		if hline.CrossesWith(geom.LineSegment{Pt1: oldPos, Pt2: newPos}) {
 			m.Process(proposal)
 		}
 	}
 
-	if proposal.HitBox.Top() < 0 {
+	if proposal.Hit.Center.Y < 0 {
 		return proposal.Equip, true
 	}
 
 	return nil, false
 }
 
-func (n *Negotiation) managerHLine(idx int) HorizontalHitLine {
+func (n *Negotiation) managerHLine(idx int) geom.LineSegment {
 	y := n.Size.Y * 0.5
 	width := n.Size.X / float64(len(n.Managers))
 	left := width * float64(idx)
 
-	return HorizontalHitLine{
-		Position: PointF{X: left, Y: y},
-		Length:   width,
+	return geom.LineSegment{
+		Pt1: geom.PointF{X: left, Y: y},
+		Pt2: geom.PointF{X: left + width, Y: y},
 	}
 }
 

@@ -1,6 +1,10 @@
 package build
 
-import "math/rand/v2"
+import (
+	"math/rand/v2"
+
+	"github.com/noppikinatta/ebitenginejam03/geom"
+)
 
 type Vendor struct {
 	proposals []*Proposal
@@ -14,15 +18,15 @@ func NewVendor(proposals []*Proposal, rnd *rand.Rand) *Vendor {
 	}
 }
 
-func (v *Vendor) Propose(pos PointF) *ProposalLaunchDelay {
+func (v *Vendor) Propose(pos geom.PointF) *ProposalLaunchDelay {
 	p := v.randProposal()
 	p = p.Clone()
-	p.HitBox.SetPositionFromCenter(pos)
+	p.Hit.Center = pos
 
-	va := p.HitBox.Velocity.Abs()
+	va := p.Velocity.Abs()
 	vr := v.randDirection()
 
-	p.HitBox.Velocity = PointFFromPolar(va, vr)
+	p.Velocity = geom.PointFFromPolar(va, vr)
 
 	return NewProposalLaunchDelay(p, 120)
 }

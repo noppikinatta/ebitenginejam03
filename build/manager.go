@@ -26,7 +26,7 @@ type ProposalProcessorAccelerate struct {
 }
 
 func (p *ProposalProcessorAccelerate) Process(proposal *Proposal) {
-	proposal.HitBox.MultiplyVelocity(p.Value)
+	proposal.MultiplyVelocity(p.Value)
 }
 
 type ProposalProcessorRotate struct {
@@ -34,7 +34,7 @@ type ProposalProcessorRotate struct {
 }
 
 func (p *ProposalProcessorRotate) Process(proposal *Proposal) {
-	proposal.HitBox.AddRotateVelocity(p.Value)
+	proposal.AddRotateVelocity(p.Value)
 }
 
 type ProposalProcessorCustomImageName struct {
