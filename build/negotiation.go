@@ -60,13 +60,17 @@ func (n *Negotiation) updateProposals() {
 	n.Proposals = convertPartial(
 		n.Proposals,
 		n.updateProposal,
-		func(e *Equip) {
-			n.ApprovedEquips = append(n.ApprovedEquips, e)
+		func(p *Proposal) {
+			n.Money -= p.Cost
+			if n.Money < 0 {
+				n.Money = 0
+			}
+			n.ApprovedEquips = append(n.ApprovedEquips, p.Equip)
 		},
 	)
 }
 
-func (n *Negotiation) updateProposal(proposal *Proposal) (*Equip, bool) {
+func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
 	oldPos := proposal.Hit.Center
 	proposal.Update()
 	proposal.BoundBottom(n.Size.Y)
@@ -87,7 +91,7 @@ func (n *Negotiation) updateProposal(proposal *Proposal) (*Equip, bool) {
 	}
 
 	if proposal.Hit.Center.Y < 0 {
-		return proposal.Equip, true
+		return proposal, true
 	}
 
 	return nil, false
