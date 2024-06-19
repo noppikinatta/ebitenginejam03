@@ -54,28 +54,23 @@ func (c *Container) Update() error {
 		return nil
 	}
 
-	s, ok := c.current()
+	current, ok := c.current()
 	if !ok {
 		return nil
 	}
 
-	if s.End() {
-		c.next()
-		s, ok = c.current()
-		if !ok {
-			return nil
-		}
-	}
-
-	return s.Update()
+	return current.Update()
 }
 
 func (c *Container) Draw(screen *ebiten.Image) {
-	s, ok := c.current()
+	current, ok := c.current()
 	if !ok {
 		return
 	}
-	s.Draw(screen)
+	current.Draw(screen)
+	if current.End() {
+		c.next()
+	}
 }
 
 func (c *Container) End() bool {
