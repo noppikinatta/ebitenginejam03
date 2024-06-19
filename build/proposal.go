@@ -17,8 +17,13 @@ func (p *Proposal) EquipName() string {
 }
 
 func (p *Proposal) Clone() *Proposal {
-	copyP := *p
-	return &copyP
+	copyP := &Proposal{}
+	copyE := &Equip{}
+	*copyP = *p
+	*copyE = *p.Equip
+	copyP.Equip = copyE
+
+	return copyP
 }
 
 func (p *Proposal) Update() {
