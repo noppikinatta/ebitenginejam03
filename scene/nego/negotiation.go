@@ -1,15 +1,19 @@
 package nego
 
 import (
+	"fmt"
+	"math"
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/noppikinatta/ebitenginejam03/build"
+	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
 )
 
 type NegotiationGameScene struct {
 	Negotiation *build.Negotiation
+	StagePos    geom.PointF
 }
 
 func NewNegotiationGameScene() *NegotiationGameScene {
@@ -24,16 +28,102 @@ func NewNegotiationGameScene() *NegotiationGameScene {
 		Money:    10000,
 	}
 
-	return &NegotiationGameScene{Negotiation: &n}
+	return &NegotiationGameScene{Negotiation: &n, StagePos: geom.PointF{X: 0, Y: 40}}
 }
 
 func (s *NegotiationGameScene) Update() error {
 	x, _ := ebiten.CursorPosition()
+	x += int(s.StagePos.X)
 	s.Negotiation.Update(float64(x))
 	return nil
 }
 
 func (s *NegotiationGameScene) Draw(screen *ebiten.Image) {
+	s.drawApprovedEquips(screen)
+	s.drawMoney(screen)
+	s.drawVendors(screen)
+	s.drawManagers(screen)
+	s.drawDecisionMaker(screen)
+	s.drawProposals(screen)
+	s.drawProposalDelays(screen)
+}
+
+func (s *NegotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
+	if len(s.Negotiation.ApprovedEquips) == 0 {
+		return
+	}
+
+	topLeft := geom.PointF{}
+	topLeft.X = s.Negotiation.Size.X
+	topLeft.Y = s.StagePos.Y
+
+	rightBottom := geom.PointF{}
+	rightBottom.X = float64(screen.Bounds().Max.X)
+	rightBottom.Y = float64(screen.Bounds().Max.Y)
+
+	areaHeight := rightBottom.Y - topLeft.Y
+	itemHeight := math.Min(64, areaHeight/float64(len(s.Negotiation.ApprovedEquips)))
+
+	for i, e := range s.Negotiation.ApprovedEquips {
+		y := itemHeight * float64(i)
+
+		opt := ebiten.DrawImageOptions{}
+		opt.GeoM.Translate(topLeft.X, y)
+
+		drawing.DrawText(screen, e.Name, 12, &opt)
+	}
+}
+
+func (s *NegotiationGameScene) drawMoney(screen *ebiten.Image) {
+	drawing.DrawText(screen, fmt.Sprint(s.Negotiation.Money), 18, &ebiten.DrawImageOptions{})
+}
+
+func (s *NegotiationGameScene) drawVendors(screen *ebiten.Image) {
+	size := geom.PointF{X: 128, Y: 128}
+	idxs := []uint16{0, 1, 2, 0, 2, 3}
+
+	for i, v := range s.Negotiation.VendorSelector.Vendors {
+		bottomCenter := s.Negotiation.ProposalStartPosition(i)
+		vertices := make([]ebiten.Vertex, 4)
+		vertices[0] = ebiten.Vertex{
+			DstX: float32(bottomCenter.X - 0.5*size.X),
+			DstY: float32(bottomCenter.Y - size.Y),
+		}
+		vertices[1] = ebiten.Vertex{
+			DstX: float32(bottomCenter.X - 0.5*size.X),
+			DstY: float32(bottomCenter.Y),
+		}
+		vertices[2] = ebiten.Vertex{
+			DstX: float32(bottomCenter.X + 0.5*size.X),
+			DstY: float32(bottomCenter.Y),
+		}
+		vertices[3] = ebiten.Vertex{
+			DstX: float32(bottomCenter.X + 0.5*size.X),
+			DstY: float32(bottomCenter.Y - size.Y),
+		}
+
+		topt := ebiten.DrawTrianglesOptions{}
+		screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
+
+		iopt := ebiten.DrawImageOptions{}
+		iopt.GeoM.Translate(float64(vertices[0].DstX), float64(vertices[0].DstY))
+		drawing.DrawText(screen, v.Name, 12, &iopt)
+	}
+}
+
+func (s *NegotiationGameScene) drawManagers(screen *ebiten.Image) {
+
+}
+
+func (s *NegotiationGameScene) drawDecisionMaker(screen *ebiten.Image) {
+
+}
+
+func (s *NegotiationGameScene) drawProposals(screen *ebiten.Image) {
+
+}
+
+func (s *NegotiationGameScene) drawProposalDelays(screen *ebiten.Image) {
 
 }
 
