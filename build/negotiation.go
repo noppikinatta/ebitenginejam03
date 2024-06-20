@@ -31,14 +31,14 @@ func (n *Negotiation) updateVendors() {
 	}
 
 	idx := n.VendorSelector.IndexOf(vendor)
-	pos := n.proposalStartPosition(idx, n.VendorSelector.Length())
+	pos := n.ProposalStartPosition(idx)
 
 	pd := vendor.Propose(pos)
 	n.ProposalDelays = append(n.ProposalDelays, pd)
 }
 
-func (n *Negotiation) proposalStartPosition(idx, max int) geom.PointF {
-	width := n.Size.X / float64(max)
+func (n *Negotiation) ProposalStartPosition(idx int) geom.PointF {
+	width := n.Size.X / float64(n.VendorSelector.Length())
 	x := (float64(idx) + 0.5) * width
 
 	return geom.PointF{X: x, Y: n.Size.Y}
