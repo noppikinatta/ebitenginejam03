@@ -42,7 +42,7 @@ func (v *Vendor) randDirection() float64 {
 }
 
 type VendorSelector struct {
-	vendors       []*Vendor
+	Vendors       []*Vendor
 	selectedCount []int
 	interval      int
 	framesToWait  int
@@ -51,7 +51,7 @@ type VendorSelector struct {
 
 func NewVendorSelector(vendors []*Vendor, interval int, rnd *rand.Rand) *VendorSelector {
 	return &VendorSelector{
-		vendors:       vendors,
+		Vendors:       vendors,
 		selectedCount: make([]int, len(vendors)),
 		interval:      interval,
 		framesToWait:  interval,
@@ -67,11 +67,11 @@ func (s *VendorSelector) Reset() {
 }
 
 func (s *VendorSelector) Length() int {
-	return len(s.vendors)
+	return len(s.Vendors)
 }
 
 func (s *VendorSelector) IndexOf(vendor *Vendor) int {
-	for i, v := range s.vendors {
+	for i, v := range s.Vendors {
 		if v == vendor {
 			return i
 		}
@@ -90,7 +90,7 @@ func (s *VendorSelector) Update() (*Vendor, bool) {
 	rndMax := s.rndMax()
 	rndVal := s.rnd.IntN(rndMax)
 	max := 0
-	for i, v := range s.vendors {
+	for i, v := range s.Vendors {
 		max += (1 + s.selectedCount[i])
 		if rndVal < max {
 			s.selectedCount[i]++
@@ -102,7 +102,7 @@ func (s *VendorSelector) Update() (*Vendor, bool) {
 }
 
 func (s *VendorSelector) rndMax() int {
-	base := len(s.vendors)
+	base := len(s.Vendors)
 	for _, v := range s.selectedCount {
 		base += v
 	}
