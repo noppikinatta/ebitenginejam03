@@ -3,6 +3,7 @@ package game
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/noppikinatta/ebitenginejam03/scene"
+	"github.com/noppikinatta/ebitenginejam03/scene/nego"
 	"github.com/noppikinatta/ebitenginejam03/scene/prologue"
 	"github.com/noppikinatta/ebitenginejam03/scene/title"
 )
@@ -14,10 +15,11 @@ type Game struct {
 func NewGame() *Game {
 	title := title.NewTitleScene()
 	prologue := prologue.NewPrologueScene()
+	negotiation := nego.NewNegotiationScene()
 
-	scenes := scene.NewContainer(title, prologue)
+	scenes := scene.NewContainer(title, prologue, negotiation)
 
-	scenes.AddTransition(prologue, title)
+	scenes.AddTransition(negotiation, title)
 
 	g := Game{
 		scenes: scenes,
