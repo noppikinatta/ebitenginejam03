@@ -45,7 +45,7 @@ func (s *NegotiationGameScene) Draw(screen *ebiten.Image) {
 	s.drawManagers(screen)
 	s.drawDecisionMaker(screen)
 	s.drawProposals(screen)
-	s.drawProposalDelays(screen)
+	s.drawProposalDelay(screen)
 }
 
 func (s *NegotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
@@ -84,6 +84,8 @@ func (s *NegotiationGameScene) drawVendors(screen *ebiten.Image) {
 
 	for i, v := range s.Negotiation.VendorSelector.Vendors {
 		bottomCenter := s.Negotiation.ProposalStartPosition(i)
+		bottomCenter = bottomCenter.Add(s.StagePos)
+
 		vertices := make([]ebiten.Vertex, 4)
 		vertices[0] = ebiten.Vertex{
 			DstX: float32(bottomCenter.X - 0.5*size.X),
@@ -112,18 +114,167 @@ func (s *NegotiationGameScene) drawVendors(screen *ebiten.Image) {
 }
 
 func (s *NegotiationGameScene) drawManagers(screen *ebiten.Image) {
+	size := geom.PointF{X: 128, Y: 128}
+	idxs := []uint16{0, 1, 2, 0, 2, 3}
 
+	for i, m := range s.Negotiation.Managers {
+		line := s.Negotiation.ManagerHLine(i)
+		center := line.Center()
+		center = center.Add(s.StagePos)
+
+		vertices := make([]ebiten.Vertex, 4)
+		vertices[0] = ebiten.Vertex{
+			DstX: float32(center.X - 0.5*size.X),
+			DstY: float32(center.Y - 0.5*size.Y),
+		}
+		vertices[1] = ebiten.Vertex{
+			DstX: float32(center.X - 0.5*size.X),
+			DstY: float32(center.Y + 0.5*size.Y),
+		}
+		vertices[2] = ebiten.Vertex{
+			DstX: float32(center.X + 0.5*size.X),
+			DstY: float32(center.Y + 0.5*size.Y),
+		}
+		vertices[3] = ebiten.Vertex{
+			DstX: float32(center.X + 0.5*size.X),
+			DstY: float32(center.Y - 0.5*size.Y),
+		}
+
+		topt := ebiten.DrawTrianglesOptions{}
+		screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
+
+		iopt := ebiten.DrawImageOptions{}
+		iopt.GeoM.Translate(float64(vertices[0].DstX), float64(vertices[0].DstY))
+		drawing.DrawText(screen, m.Name, 12, &iopt)
+	}
 }
 
 func (s *NegotiationGameScene) drawDecisionMaker(screen *ebiten.Image) {
+	left := s.Negotiation.DecisionMaker.Left
+	top, _ := s.Negotiation.DecisionMaker.LinearFn.Y(left)
+	width := s.Negotiation.DecisionMaker.Length
 
+	topLeft := geom.PointF{X: left, Y: top - 2}
+	bottomRight := geom.PointF{X: left + width, Y: top + 2}
+	topLeft = topLeft.Add(s.StagePos)
+	bottomRight = bottomRight.Add(s.StagePos)
+
+	idxs := []uint16{0, 1, 2, 0, 2, 3}
+	vertices := make([]ebiten.Vertex, 4)
+	vertices[0] = ebiten.Vertex{
+		DstX: float32(topLeft.X),
+		DstY: float32(topLeft.Y),
+	}
+	vertices[1] = ebiten.Vertex{
+		DstX: float32(topLeft.X),
+		DstY: float32(bottomRight.Y),
+	}
+	vertices[2] = ebiten.Vertex{
+		DstX: float32(bottomRight.X),
+		DstY: float32(bottomRight.Y),
+	}
+	vertices[3] = ebiten.Vertex{
+		DstX: float32(bottomRight.X),
+		DstY: float32(topLeft.Y),
+	}
+
+	topt := ebiten.DrawTrianglesOptions{}
+	screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
 }
 
 func (s *NegotiationGameScene) drawProposals(screen *ebiten.Image) {
+	idxs := []uint16{0, 1, 2, 0, 2, 3}
 
+	for _, p := range s.Negotiation.Proposals {
+		hit := p.Hit
+
+		gm := ebiten.GeoM{}
+		gm.Rotate(p.Rotate)
+		gm.Translate(hit.Center.X, hit.Center.Y)
+		gm.Translate(s.StagePos.X, s.StagePos.Y)
+		var x, y float64
+
+		vertices := make([]ebiten.Vertex, 4)
+		x, y = gm.Apply(-hit.Radius, -hit.Radius)
+		vertices[0] = ebiten.Vertex{
+			DstX: float32(x),
+			DstY: float32(y),
+		}
+		x, y = gm.Apply(-hit.Radius, hit.Radius)
+		vertices[1] = ebiten.Vertex{
+			DstX: float32(x),
+			DstY: float32(y),
+		}
+		x, y = gm.Apply(hit.Radius, hit.Radius)
+		vertices[2] = ebiten.Vertex{
+			DstX: float32(x),
+			DstY: float32(y),
+		}
+		x, y = gm.Apply(hit.Radius, -hit.Radius)
+		vertices[3] = ebiten.Vertex{
+			DstX: float32(x),
+			DstY: float32(y),
+		}
+
+		topt := ebiten.DrawTrianglesOptions{}
+		screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
+
+		iopt := ebiten.DrawImageOptions{}
+		iopt.GeoM.Translate(float64(vertices[0].DstX), float64(vertices[0].DstY))
+		drawing.DrawText(screen, p.ImageName(), 12, &iopt)
+	}
 }
 
-func (s *NegotiationGameScene) drawProposalDelays(screen *ebiten.Image) {
+func (s *NegotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
+	if s.Negotiation.ProposalDelay != nil {
+		return
+	}
+
+	startPos := s.Negotiation.ProposalDelay.Hit.Center.Add(s.StagePos)
+	triangleVerts := make([]ebiten.Vertex, 3)
+	triangleVerts[0] = ebiten.Vertex{
+		DstX: float32(startPos.X),
+		DstY: float32(startPos.Y),
+	}
+	triangleVerts[0] = ebiten.Vertex{
+		DstX: float32(startPos.X + 16),
+		DstY: float32(startPos.Y - 32),
+	}
+	triangleVerts[0] = ebiten.Vertex{
+		DstX: float32(startPos.X - 16),
+		DstY: float32(startPos.Y - 32),
+	}
+
+	topt := ebiten.DrawTrianglesOptions{}
+	screen.DrawTriangles(triangleVerts, []uint16{0, 1, 2}, drawing.WhitePixel, &topt)
+
+	baloonVerts := make([]ebiten.Vertex, 4)
+	baloonTopLeft := geom.PointF{
+		X: s.StagePos.X + 8,
+		Y: startPos.Y - 32 - 64,
+	}
+	baloonBottomRight := geom.PointF{
+		X: s.StagePos.X + s.Negotiation.Size.X - 8,
+		Y: startPos.Y - 32 - 64,
+	}
+	baloonVerts[0] = ebiten.Vertex{
+		DstX: float32(baloonTopLeft.X),
+		DstY: float32(baloonTopLeft.Y),
+	}
+	baloonVerts[1] = ebiten.Vertex{
+		DstX: float32(baloonTopLeft.X),
+		DstY: float32(baloonBottomRight.Y),
+	}
+	baloonVerts[2] = ebiten.Vertex{
+		DstX: float32(baloonBottomRight.X),
+		DstY: float32(baloonBottomRight.Y),
+	}
+	baloonVerts[3] = ebiten.Vertex{
+		DstX: float32(baloonBottomRight.X),
+		DstY: float32(baloonTopLeft.Y),
+	}
+	idxs := []uint16{0, 1, 2, 0, 2, 3}
+	screen.DrawTriangles(baloonVerts, idxs, drawing.WhitePixel, &topt)
 
 }
 

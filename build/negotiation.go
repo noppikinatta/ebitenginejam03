@@ -8,7 +8,7 @@ type Negotiation struct {
 	VendorSelector *VendorSelector
 	Managers       []*Manager
 	Money          int
-	ProposalDelays []*ProposalLaunchDelay
+	ProposalDelay  *Proposal
 	Proposals      []*Proposal
 	ApprovedEquips []*Equip
 }
@@ -16,7 +16,6 @@ type Negotiation struct {
 func (n *Negotiation) Update(decisionMakerX float64) {
 	n.updateDecisionMaker(decisionMakerX)
 	n.updateVendors()
-	n.updateProposalDelays()
 	n.updateProposals()
 }
 
@@ -33,8 +32,11 @@ func (n *Negotiation) updateVendors() {
 	idx := n.VendorSelector.IndexOf(vendor)
 	pos := n.ProposalStartPosition(idx)
 
-	pd := vendor.Propose(pos)
-	n.ProposalDelays = append(n.ProposalDelays, pd)
+	p := vendor.Propose(pos)
+	if n.ProposalDelay != nil {
+		n.Proposals = append(n.Proposals, p)
+	}
+	n.ProposalDelay = p
 }
 
 func (n *Negotiation) ProposalStartPosition(idx int) geom.PointF {
@@ -42,18 +44,6 @@ func (n *Negotiation) ProposalStartPosition(idx int) geom.PointF {
 	x := (float64(idx) + 0.5) * width
 
 	return geom.PointF{X: x, Y: n.Size.Y}
-}
-
-func (n *Negotiation) updateProposalDelays() {
-	n.ProposalDelays = convertPartial(
-		n.ProposalDelays,
-		func(d *ProposalLaunchDelay) (*Proposal, bool) {
-			return d.Update()
-		},
-		func(p *Proposal) {
-			n.Proposals = append(n.Proposals, p)
-		},
-	)
 }
 
 func (n *Negotiation) updateProposals() {
@@ -84,7 +74,7 @@ func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
 	newPos := proposal.Hit.Center
 
 	for i, m := range n.Managers {
-		hline := n.managerHLine(i)
+		hline := n.ManagerHLine(i)
 		if hline.CrossesWith(geom.LineSegment{Pt1: oldPos, Pt2: newPos}) {
 			m.Process(proposal)
 		}
@@ -97,7 +87,7 @@ func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
 	return nil, false
 }
 
-func (n *Negotiation) managerHLine(idx int) geom.LineSegment {
+func (n *Negotiation) ManagerHLine(idx int) geom.LineSegment {
 	y := n.Size.Y * 0.5
 	width := n.Size.X / float64(len(n.Managers))
 	left := width * float64(idx)
@@ -114,7 +104,7 @@ func (n *Negotiation) End() bool {
 
 func (n *Negotiation) Reset(money int) {
 	n.ApprovedEquips = nil
-	n.ProposalDelays = nil
+	n.ProposalDelay = nil
 	n.Proposals = nil
 	n.VendorSelector.Reset()
 	n.Money = money

@@ -62,6 +62,13 @@ func (l LineSegment) Bottom() float64 {
 	return math.Max(l.Pt1.Y, l.Pt2.Y)
 }
 
+func (l LineSegment) Center() PointF {
+	return PointF{
+		X: (l.Pt1.X + l.Pt2.X) * 0.5,
+		Y: (l.Pt1.Y + l.Pt2.Y) * 0.5,
+	}
+}
+
 func (l LineSegment) Length() float64 {
 	dx := l.Pt1.X - l.Pt2.X
 	dy := l.Pt1.Y - l.Pt2.Y

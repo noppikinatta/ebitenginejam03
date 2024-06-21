@@ -12,7 +12,10 @@ type Proposal struct {
 	CustomImageName string
 }
 
-func (p *Proposal) EquipName() string {
+func (p *Proposal) ImageName() string {
+	if len(p.CustomImageName) > 0 {
+		return p.CustomImageName
+	}
 	return p.Equip.Name
 }
 
@@ -79,29 +82,4 @@ func (p *Proposal) MultiplyVelocity(v float64) {
 
 func (p *Proposal) AddRotateVelocity(v float64) {
 	p.RotateVelocity += v
-}
-
-type ProposalLaunchDelay struct {
-	proposal    *Proposal
-	waitingTime int
-}
-
-func NewProposalLaunchDelay(proposal *Proposal, waitingTime int) *ProposalLaunchDelay {
-	return &ProposalLaunchDelay{
-		proposal:    proposal,
-		waitingTime: waitingTime,
-	}
-}
-
-func (d *ProposalLaunchDelay) EquipName() string {
-	return d.proposal.Equip.Name
-}
-
-func (d *ProposalLaunchDelay) Update() (*Proposal, bool) {
-	if d.waitingTime > 0 {
-		d.waitingTime -= 1
-		return nil, false
-	}
-
-	return d.proposal, true
 }

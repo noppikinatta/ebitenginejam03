@@ -19,7 +19,7 @@ func NewVendor(name string, proposals []*Proposal, rnd *rand.Rand) *Vendor {
 	}
 }
 
-func (v *Vendor) Propose(pos geom.PointF) *ProposalLaunchDelay {
+func (v *Vendor) Propose(pos geom.PointF) *Proposal {
 	p := v.randProposal()
 	p = p.Clone()
 	p.Hit.Center = pos
@@ -29,7 +29,7 @@ func (v *Vendor) Propose(pos geom.PointF) *ProposalLaunchDelay {
 
 	p.Velocity = geom.PointFFromPolar(va, vr)
 
-	return NewProposalLaunchDelay(p, 120)
+	return p
 }
 
 func (v *Vendor) randProposal() *Proposal {

@@ -6,6 +6,13 @@ type PointF struct {
 	X, Y float64
 }
 
+func (p PointF) Add(other PointF) PointF {
+	return PointF{
+		X: p.X + other.X,
+		Y: p.Y + other.Y,
+	}
+}
+
 func (p PointF) Abs() float64 {
 	return math.Sqrt(p.X*p.X + p.Y*p.Y)
 }
