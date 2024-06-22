@@ -42,7 +42,7 @@ func (n *Negotiation) updateVendors() {
 
 	p := vendor.Propose(pos)
 	if n.ProposalDelay != nil {
-		n.Proposals = append(n.Proposals, p)
+		n.Proposals = append(n.Proposals, n.ProposalDelay)
 	}
 	n.ProposalDelay = p
 }
