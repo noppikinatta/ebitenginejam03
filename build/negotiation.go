@@ -20,6 +20,14 @@ func (n *Negotiation) Update(decisionMakerX float64) {
 }
 
 func (n *Negotiation) updateDecisionMaker(decisionMakerX float64) {
+	min := n.DecisionMaker.Length / 2
+	max := n.Size.X - min
+	if decisionMakerX < min {
+		decisionMakerX = min
+	}
+	if decisionMakerX > max {
+		decisionMakerX = max
+	}
 	n.DecisionMaker.Update(decisionMakerX)
 }
 
