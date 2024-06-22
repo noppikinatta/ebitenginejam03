@@ -20,3 +20,8 @@ func (c Circle) Top() float64 {
 func (c Circle) Bottom() float64 {
 	return c.Center.Y + c.Radius
 }
+
+func (c Circle) IntersectsWith(other Circle) bool {
+	distance := c.Center.Distance(other.Center)
+	return distance < (c.Radius + other.Radius)
+}
