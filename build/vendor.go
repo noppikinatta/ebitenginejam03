@@ -86,24 +86,30 @@ func (s *VendorSelector) Update() (*Vendor, bool) {
 	}
 	s.framesToWait = int(float64(s.interval) * (s.rnd.Float64()*0.4 + 0.8))
 
-	rndMax := s.rndMax()
-	rndVal := s.rnd.IntN(rndMax)
-	max := 0
-	for i, v := range s.Vendors {
-		max += (1 + s.selectedCount[i])
-		if rndVal < max {
-			s.selectedCount[i]++
-			return v, true
-		}
-	}
-
-	return nil, false
+	return s.selectVendor(), true
 }
 
-func (s *VendorSelector) rndMax() int {
-	base := len(s.Vendors)
-	for _, v := range s.selectedCount {
-		base += v
+func (s *VendorSelector) selectVendor() *Vendor {
+	var rndMax float64
+	priprities := make([]float64, len(s.Vendors))
+	for i := range priprities {
+		p := s.priority(i)
+		priprities[i] = p
+		rndMax += p
 	}
-	return base
+
+	rndValue := s.rnd.Float64() * rndMax
+	for i := range s.Vendors {
+		if rndValue < priprities[i] {
+			return s.Vendors[i]
+
+		}
+		rndValue -= priprities[i]
+	}
+
+	return s.Vendors[len(s.Vendors)-1]
+}
+
+func (s *VendorSelector) priority(idx int) float64 {
+	return 1.0 / float64(1+s.selectedCount[idx])
 }
