@@ -59,6 +59,7 @@ func NewVendorSelector(vendors []*Vendor, interval int, rnd *rand.Rand) *VendorS
 }
 
 func (s *VendorSelector) Reset() {
+	s.framesToWait = 0
 	s.selector.Reset()
 }
 
