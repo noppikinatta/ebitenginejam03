@@ -226,7 +226,7 @@ func (s *negotiationGameScene) drawProposals(screen *ebiten.Image) {
 }
 
 func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
-	if s.Negotiation.ProposalDelay != nil {
+	if s.Negotiation.ProposalDelay == nil {
 		return
 	}
 
