@@ -14,6 +14,7 @@ type Vendor struct {
 
 func NewVendor(name string, proposals []*Proposal, rnd *rand.Rand) *Vendor {
 	return &Vendor{
+		Name:      name,
 		proposals: proposals,
 		rnd:       rnd,
 	}
