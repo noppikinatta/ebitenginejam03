@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"math/rand/v2"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/noppikinatta/ebitenginejam03/build"
@@ -15,6 +16,7 @@ import (
 type negotiationGameScene struct {
 	Negotiation *build.Negotiation
 	StagePos    geom.PointF
+	kanshi      *build.Proposal
 }
 
 func newNegotiationGameScene() *negotiationGameScene {
@@ -24,7 +26,7 @@ func newNegotiationGameScene() *negotiationGameScene {
 		VendorSelector: build.NewVendorSelector(
 			createVendors(),
 			180,
-			rand.New(rand.NewPCG(123, 456))),
+			rand.New(rndSrc())),
 		Managers: createManagers(),
 		Money:    10000,
 	}
@@ -316,9 +318,9 @@ func createVendors() []*build.Vendor {
 	pm := createProposals()
 
 	vv := make([]*build.Vendor, 0)
-	vv = append(vv, build.NewVendor("samurai-avionics", selectProposals(pm, "laser-cannon", "space-missile", "harakiri-system"), rand.New(rand.NewPCG(314, 1592))))
-	vv = append(vv, build.NewVendor("salamis-industry", selectProposals(pm, "barrier", "armor-plate", "weak-point"), rand.New(rand.NewPCG(6535, 8979))))
-	vv = append(vv, build.NewVendor("cultual-victory-co", selectProposals(pm, "opera-house"), rand.New(rand.NewPCG(3238, 4626))))
+	vv = append(vv, build.NewVendor("samurai-avionics", selectProposals(pm, "laser-cannon", "space-missile", "harakiri-system"), rand.New(rndSrc())))
+	vv = append(vv, build.NewVendor("salamis-industry", selectProposals(pm, "barrier", "armor-plate", "weak-point"), rand.New(rndSrc())))
+	vv = append(vv, build.NewVendor("cultual-victory-co", selectProposals(pm, "opera-house"), rand.New(rndSrc())))
 
 	return vv
 }
@@ -367,4 +369,24 @@ func createManagers() []*build.Manager {
 		&build.ProposalProcessorImprove{}))
 
 	return mm
+}
+
+var rndCount byte
+var chacha8Base [32]byte = [32]byte{
+	3, 14, 15, 92, 65, 35, 89, 79,
+	32, 38, 64, 26, 43, 38, 32, 79,
+	50, 28, 84, 19, 71, 69, 39, 93,
+	75, 10, 58, 20, 97, 49, 44, 59,
+}
+
+func rndSrc() rand.Source {
+	r := byte(time.Now().UnixNano() % 256)
+	r += rndCount
+	rndCount++
+	c8src := [32]byte{}
+	for i := range c8src {
+		c8src[i] = chacha8Base[i] + r
+	}
+
+	return rand.NewChaCha8(c8src)
 }
