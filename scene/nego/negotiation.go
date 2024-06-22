@@ -11,6 +11,7 @@ import (
 	"github.com/noppikinatta/ebitenginejam03/build"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
+	"github.com/noppikinatta/ebitenginejam03/name"
 )
 
 type negotiationGameScene struct {
@@ -318,9 +319,9 @@ func createVendors() []*build.Vendor {
 	pm := createProposals()
 
 	vv := make([]*build.Vendor, 0)
-	vv = append(vv, build.NewVendor("samurai-avionics", selectProposals(pm, "laser-cannon", "space-missile", "harakiri-system"), rand.New(rndSrc())))
-	vv = append(vv, build.NewVendor("salamis-industry", selectProposals(pm, "barrier", "armor-plate", "weak-point"), rand.New(rndSrc())))
-	vv = append(vv, build.NewVendor("cultual-victory-co", selectProposals(pm, "opera-house"), rand.New(rndSrc())))
+	vv = append(vv, build.NewVendor(name.VendorSamuraiAvionics, selectProposals(pm, name.EquipLaserCannon, name.EquipSpaceMissile, name.EquipHarakiriSystem), rand.New(rndSrc())))
+	vv = append(vv, build.NewVendor(name.VendorSalamisIndustry, selectProposals(pm, name.EquipBarrier, name.EquipArmorPlate, name.EquipThermalExhaustPort), rand.New(rndSrc())))
+	vv = append(vv, build.NewVendor(name.VendorCultualVictoryCo, selectProposals(pm, name.EquipStonehenge, name.EquipSushiBar, name.EquipOperaHouse), rand.New(rndSrc())))
 
 	return vv
 }
@@ -338,15 +339,26 @@ func createProposals() map[string]*build.Proposal {
 	hit := geom.Circle{Radius: 32}
 	velocity := geom.PointF{Y: -1}
 
-	m := map[string]*build.Proposal{
-		"laser-cannon":    {Equip: &build.Equip{Name: "laser-cannon"}, Cost: 1000, Hit: hit, Velocity: velocity},
-		"space-missile":   {Equip: &build.Equip{Name: "space-missile"}, Cost: 500, Hit: hit, Velocity: velocity},
-		"harakiri-system": {Equip: &build.Equip{Name: "harakiri-system"}, Cost: 1500, Hit: hit, Velocity: velocity},
-		"barrier":         {Equip: &build.Equip{Name: "barrier"}, Cost: 1000, Hit: hit, Velocity: velocity},
-		"armor-plate":     {Equip: &build.Equip{Name: "armor-plate"}, Cost: 500, Hit: hit, Velocity: velocity},
-		"weak-point":      {Equip: &build.Equip{Name: "weak-point"}, Cost: 500, Hit: hit, Velocity: velocity},
-		"opera-house":     {Equip: &build.Equip{Name: "opera-house"}, Cost: 2000, Hit: hit, Velocity: velocity},
+	m := make(map[string]*build.Proposal)
+
+	addEquip := func(name string, cost int) {
+		m[name] = &build.Proposal{
+			Equip:    &build.Equip{Name: name},
+			Cost:     cost,
+			Hit:      hit,
+			Velocity: velocity,
+		}
 	}
+
+	addEquip(name.EquipLaserCannon, 1000)
+	addEquip(name.EquipSpaceMissile, 1000)
+	addEquip(name.EquipHarakiriSystem, 1500)
+	addEquip(name.EquipBarrier, 1000)
+	addEquip(name.EquipArmorPlate, 1000)
+	addEquip(name.EquipThermalExhaustPort, 500)
+	addEquip(name.EquipStonehenge, 1000)
+	addEquip(name.EquipSushiBar, 1000)
+	addEquip(name.EquipOperaHouse, 3000)
 
 	return m
 }
@@ -354,16 +366,16 @@ func createProposals() map[string]*build.Proposal {
 func createManagers() []*build.Manager {
 	mm := make([]*build.Manager, 0)
 	mm = append(mm, build.NewManager(
-		"mach-sonic",
+		name.ManagerMachSonic,
 		&build.ProposalProcessorAccelerate{Value: 2},
 		&build.ProposalProcessorStopRotate{},
 		&build.ProposalProcessorCustomImageName{ImageName: ""}))
 	mm = append(mm, build.NewManager(
-		"birdie-pat",
+		name.ManagerBirdiePat,
 		&build.ProposalProcessorReduceCost{Multiplier: 0.8},
-		&build.ProposalProcessorCustomImageName{ImageName: "golf"}))
+		&build.ProposalProcessorCustomImageName{ImageName: name.EquipImageGolf}))
 	mm = append(mm, build.NewManager(
-		"long-winded",
+		name.ManagerLongWinded,
 		&build.ProposalProcessorAccelerate{Value: 0.8},
 		&build.ProposalProcessorRotate{Value: 1},
 		&build.ProposalProcessorImprove{}))
