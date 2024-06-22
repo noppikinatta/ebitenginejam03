@@ -55,7 +55,6 @@ func NewVendorSelector(vendors []*Vendor, interval int, rnd *rand.Rand) *VendorS
 		Vendors:       vendors,
 		selectedCount: make([]int, len(vendors)),
 		interval:      interval,
-		framesToWait:  interval,
 		rnd:           rnd,
 	}
 }
@@ -64,7 +63,6 @@ func (s *VendorSelector) Reset() {
 	for i := range s.selectedCount {
 		s.selectedCount[i] = 0
 	}
-	s.framesToWait = s.interval
 }
 
 func (s *VendorSelector) Length() int {
