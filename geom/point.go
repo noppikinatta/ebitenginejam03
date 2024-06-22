@@ -13,6 +13,17 @@ func (p PointF) Add(other PointF) PointF {
 	}
 }
 
+func (p PointF) Multiply(value float64) PointF {
+	return PointF{
+		X: p.X * value,
+		Y: p.Y * value,
+	}
+}
+
+func (p PointF) Angle() float64 {
+	return math.Atan2(p.X, p.Y)
+}
+
 func (p PointF) Abs() float64 {
 	return math.Sqrt(p.X*p.X + p.Y*p.Y)
 }
@@ -27,9 +38,9 @@ func (p PointF) Distance(other PointF) float64 {
 	return math.Sqrt(dx*dx + dy*dy)
 }
 
-func PointFFromPolar(a float64, rRad float64) PointF {
-	x := a * math.Cos(rRad)
-	y := a * math.Sin(rRad)
+func PointFFromPolar(abs float64, angleRad float64) PointF {
+	x := abs * math.Cos(angleRad)
+	y := abs * math.Sin(angleRad)
 
 	return PointF{X: x, Y: y}
 }
