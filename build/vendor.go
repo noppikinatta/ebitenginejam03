@@ -86,7 +86,7 @@ func (s *VendorSelector) Update() (*Vendor, bool) {
 		s.framesToWait--
 		return nil, false
 	}
-	s.framesToWait = int(float64(s.interval)*(s.rnd.Float64()*0.4) + 0.8)
+	s.framesToWait = int(float64(s.interval) * (s.rnd.Float64()*0.4 + 0.8))
 
 	rndMax := s.rndMax()
 	rndVal := s.rnd.IntN(rndMax)
