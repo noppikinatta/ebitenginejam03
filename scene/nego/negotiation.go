@@ -297,7 +297,7 @@ func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
 	}
 	baloonBottomRight := geom.PointF{
 		X: s.StagePos.X + s.Negotiation.Size.X - 8,
-		Y: startPos.Y - 32 - 64,
+		Y: startPos.Y - 32,
 	}
 	s.drawRect(screen, baloonTopLeft, baloonBottomRight, v)
 
