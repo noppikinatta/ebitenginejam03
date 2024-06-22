@@ -138,7 +138,7 @@ func (s *negotiationGameScene) drawVendors(screen *ebiten.Image) {
 		ColorA: 0.25,
 	}
 
-	for i, v := range s.Negotiation.VendorSelector.Vendors {
+	for i, v := range s.Negotiation.VendorSelector.Vendors() {
 		bottomCenter := s.Negotiation.ProposalStartPosition(i)
 		bottomCenter = bottomCenter.Add(s.StagePos)
 		topLeft := geom.PointF{

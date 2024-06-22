@@ -50,7 +50,7 @@ func (n *Negotiation) updateVendors() {
 }
 
 func (n *Negotiation) ProposalStartPosition(idx int) geom.PointF {
-	width := n.Size.X / float64(n.VendorSelector.Length())
+	width := n.Size.X / float64(len(n.VendorSelector.Vendors()))
 	x := (float64(idx) + 0.5) * width
 
 	return geom.PointF{X: x, Y: n.Size.Y}

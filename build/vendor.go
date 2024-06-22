@@ -8,16 +8,16 @@ import (
 )
 
 type Vendor struct {
-	Name      string
-	proposals []*Proposal
-	rnd       *rand.Rand
+	Name     string
+	selector *randomSelector[*Proposal]
+	rnd      *rand.Rand
 }
 
 func NewVendor(name string, proposals []*Proposal, rnd *rand.Rand) *Vendor {
 	return &Vendor{
-		Name:      name,
-		proposals: proposals,
-		rnd:       rnd,
+		Name:     name,
+		selector: &randomSelector[*Proposal]{Items: proposals, rnd: rnd},
+		rnd:      rnd,
 	}
 }
 
@@ -35,7 +35,7 @@ func (v *Vendor) Propose(pos geom.PointF) *Proposal {
 }
 
 func (v *Vendor) randProposal() *Proposal {
-	return v.proposals[v.rnd.IntN(len(v.proposals))]
+	return v.selector.Select()
 }
 
 func (v *Vendor) randDirection() float64 {
@@ -44,34 +44,30 @@ func (v *Vendor) randDirection() float64 {
 }
 
 type VendorSelector struct {
-	Vendors       []*Vendor
-	selectedCount []int
-	interval      int
-	framesToWait  int
-	rnd           *rand.Rand
+	selector     *randomSelector[*Vendor]
+	interval     int
+	framesToWait int
+	rnd          *rand.Rand
 }
 
 func NewVendorSelector(vendors []*Vendor, interval int, rnd *rand.Rand) *VendorSelector {
 	return &VendorSelector{
-		Vendors:       vendors,
-		selectedCount: make([]int, len(vendors)),
-		interval:      interval,
-		rnd:           rnd,
+		selector: &randomSelector[*Vendor]{Items: vendors, rnd: rnd},
+		interval: interval,
+		rnd:      rnd,
 	}
 }
 
 func (s *VendorSelector) Reset() {
-	for i := range s.selectedCount {
-		s.selectedCount[i] = 0
-	}
+	s.selector.Reset()
 }
 
-func (s *VendorSelector) Length() int {
-	return len(s.Vendors)
+func (s *VendorSelector) Vendors() []*Vendor {
+	return s.selector.Items
 }
 
 func (s *VendorSelector) IndexOf(vendor *Vendor) int {
-	for i, v := range s.Vendors {
+	for i, v := range s.Vendors() {
 		if v == vendor {
 			return i
 		}
@@ -87,30 +83,5 @@ func (s *VendorSelector) Update() (*Vendor, bool) {
 	}
 	s.framesToWait = int(float64(s.interval) * (s.rnd.Float64()*0.4 + 0.8))
 
-	return s.selectVendor(), true
-}
-
-func (s *VendorSelector) selectVendor() *Vendor {
-	var rndMax float64
-	priprities := make([]float64, len(s.Vendors))
-	for i := range priprities {
-		p := s.priority(i)
-		priprities[i] = p
-		rndMax += p
-	}
-
-	rndValue := s.rnd.Float64() * rndMax
-	for i := range s.Vendors {
-		if rndValue < priprities[i] {
-			return s.Vendors[i]
-
-		}
-		rndValue -= priprities[i]
-	}
-
-	return s.Vendors[len(s.Vendors)-1]
-}
-
-func (s *VendorSelector) priority(idx int) float64 {
-	return 1.0 / float64(1+s.selectedCount[idx])
+	return s.selector.Select(), true
 }
