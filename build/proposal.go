@@ -79,7 +79,7 @@ func (p *Proposal) BoundRight(x float64) {
 
 func (p *Proposal) MultiplyVelocity(v float64) {
 	a := p.Velocity.Abs()
-	r := p.Velocity.Direction360()
+	r := p.Velocity.DirectionRad()
 
 	a *= v
 

@@ -1,6 +1,7 @@
 package build
 
 import (
+	"math"
 	"math/rand/v2"
 
 	"github.com/noppikinatta/ebitenginejam03/geom"
@@ -39,7 +40,7 @@ func (v *Vendor) randProposal() *Proposal {
 
 func (v *Vendor) randDirection() float64 {
 	// -30 ~ -150 degrees
-	return -1 * (v.rnd.Float64()*120 + 30)
+	return -1 * (v.rnd.Float64()*120 + 30) * math.Pi / 180
 }
 
 type VendorSelector struct {
