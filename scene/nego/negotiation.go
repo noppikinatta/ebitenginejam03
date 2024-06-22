@@ -355,7 +355,7 @@ func createManagers() []*build.Manager {
 	mm := make([]*build.Manager, 0)
 	mm = append(mm, build.NewManager(
 		"mach-sonic",
-		&build.ProposalProcessorAccelerate{Value: 1.5},
+		&build.ProposalProcessorAccelerate{Value: 2},
 		&build.ProposalProcessorStopRotate{},
 		&build.ProposalProcessorCustomImageName{ImageName: ""}))
 	mm = append(mm, build.NewManager(
