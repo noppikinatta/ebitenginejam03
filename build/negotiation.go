@@ -20,7 +20,7 @@ func (n *Negotiation) Update(decisionMakerX float64) {
 }
 
 func (n *Negotiation) updateDecisionMaker(decisionMakerX float64) {
-	min := n.DecisionMaker.Length / 2
+	min := n.DecisionMaker.Width / 2
 	max := n.Size.X - min
 	if decisionMakerX < min {
 		decisionMakerX = min
@@ -75,7 +75,7 @@ func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
 	proposal.BoundLeft(0)
 	proposal.BoundRight(n.Size.X)
 
-	if n.DecisionMaker.LinearFn.Distance(proposal.Hit.Center) <= proposal.Hit.Radius && proposal.Hit.Center.Y > 0 {
+	if n.DecisionMaker.Hit(proposal.Hit) {
 		proposal.BoundTop(0)
 	}
 
