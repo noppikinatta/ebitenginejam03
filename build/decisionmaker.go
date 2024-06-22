@@ -44,13 +44,15 @@ func (d *DecisionMaker) Hit(c geom.Circle) bool {
 	}
 
 	dist := d.LinearFn.Distance(c.Center)
-	if c.Radius < dist {
+	if dist > c.Radius {
 		return false
 	}
 
-	distL := c.Center.Distance(d.Left())
-	distR := c.Center.Distance(d.Right())
-	if c.Radius < distL && c.Radius < distR {
+	if c.Left() > d.Right().X {
+		return false
+	}
+
+	if c.Right() < d.Left().X {
 		return false
 	}
 
