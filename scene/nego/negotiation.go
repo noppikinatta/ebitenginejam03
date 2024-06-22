@@ -16,7 +16,6 @@ import (
 type negotiationGameScene struct {
 	Negotiation *build.Negotiation
 	StagePos    geom.PointF
-	kanshi      *build.Proposal
 }
 
 func newNegotiationGameScene() *negotiationGameScene {
@@ -163,9 +162,10 @@ func (s *negotiationGameScene) drawManagers(screen *ebiten.Image) {
 	size := geom.PointF{X: 128, Y: 128}
 	idxs := []uint16{0, 1, 2, 0, 2, 3}
 
+	mY := s.Negotiation.ManagerY()
 	for i, m := range s.Negotiation.Managers {
-		line := s.Negotiation.ManagerHLine(i)
-		center := line.Center()
+		mL, mR := s.Negotiation.ManagerXLeftRight(i)
+		center := geom.PointF{X: (mL + mR) / 2, Y: mY}
 		center = center.Add(s.StagePos)
 
 		v := ebiten.Vertex{
@@ -340,12 +340,12 @@ func createProposals() map[string]*build.Proposal {
 
 	m := map[string]*build.Proposal{
 		"laser-cannon":    {Equip: &build.Equip{Name: "laser-cannon"}, Cost: 1000, Hit: hit, Velocity: velocity},
-		"space-missile":   {Equip: &build.Equip{Name: "space-missile"}, Cost: 800, Hit: hit, Velocity: velocity},
-		"harakiri-system": {Equip: &build.Equip{Name: "harakiri-system"}, Cost: 1200, Hit: hit, Velocity: velocity},
+		"space-missile":   {Equip: &build.Equip{Name: "space-missile"}, Cost: 500, Hit: hit, Velocity: velocity},
+		"harakiri-system": {Equip: &build.Equip{Name: "harakiri-system"}, Cost: 1500, Hit: hit, Velocity: velocity},
 		"barrier":         {Equip: &build.Equip{Name: "barrier"}, Cost: 1000, Hit: hit, Velocity: velocity},
-		"armor-plate":     {Equip: &build.Equip{Name: "armor-plate"}, Cost: 800, Hit: hit, Velocity: velocity},
+		"armor-plate":     {Equip: &build.Equip{Name: "armor-plate"}, Cost: 500, Hit: hit, Velocity: velocity},
 		"weak-point":      {Equip: &build.Equip{Name: "weak-point"}, Cost: 500, Hit: hit, Velocity: velocity},
-		"opera-house":     {Equip: &build.Equip{Name: "opera-house"}, Cost: 5000, Hit: hit, Velocity: velocity},
+		"opera-house":     {Equip: &build.Equip{Name: "opera-house"}, Cost: 2000, Hit: hit, Velocity: velocity},
 	}
 
 	return m

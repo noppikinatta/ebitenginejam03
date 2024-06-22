@@ -1,6 +1,8 @@
 package geom
 
-import "math"
+import (
+	"math"
+)
 
 // LinearFunc: Ax + By + C = 0.
 type LinearFunc struct {

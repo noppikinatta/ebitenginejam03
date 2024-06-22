@@ -1,6 +1,8 @@
 package build
 
-import "github.com/noppikinatta/ebitenginejam03/geom"
+import (
+	"github.com/noppikinatta/ebitenginejam03/geom"
+)
 
 type Negotiation struct {
 	Size           geom.PointF
@@ -81,10 +83,14 @@ func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
 
 	newPos := proposal.Hit.Center
 
+	managerY := n.ManagerY()
 	for i, m := range n.Managers {
-		hline := n.ManagerHLine(i)
-		if hline.CrossesWith(geom.LineSegment{Pt1: oldPos, Pt2: newPos}) {
-			m.Process(proposal)
+		mL, mR := n.ManagerXLeftRight(i)
+		if oldPos.Y >= managerY && newPos.Y <= managerY {
+			pX := (oldPos.X + newPos.X) / 2
+			if pX >= mL && pX <= mR {
+				m.Process(proposal)
+			}
 		}
 	}
 
@@ -95,15 +101,15 @@ func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
 	return nil, false
 }
 
-func (n *Negotiation) ManagerHLine(idx int) geom.LineSegment {
-	y := n.Size.Y * 0.5
+func (n *Negotiation) ManagerY() float64 {
+	return n.Size.Y * 0.5
+}
+
+func (n *Negotiation) ManagerXLeftRight(idx int) (l, r float64) {
 	width := n.Size.X / float64(len(n.Managers))
 	left := width * float64(idx)
 
-	return geom.LineSegment{
-		Pt1: geom.PointF{X: left, Y: y},
-		Pt2: geom.PointF{X: left + width, Y: y},
-	}
+	return left, left + width
 }
 
 func (n *Negotiation) End() bool {
