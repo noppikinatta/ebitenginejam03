@@ -1,6 +1,8 @@
 package shooter
 
-import "github.com/noppikinatta/ebitenginejam03/geom"
+import (
+	"github.com/noppikinatta/ebitenginejam03/geom"
+)
 
 type Stage struct {
 	Size          geom.PointF
@@ -19,8 +21,8 @@ func (s *Stage) Update(cursorPos geom.PointF) {
 }
 
 func (s *Stage) calcAngle(cursorPos geom.PointF) float64 {
-	centerMinus := s.Size.Multiply(-0.5)
-	relative := cursorPos.Add(centerMinus)
+	center := s.Size.Multiply(0.5)
+	relative := cursorPos.Subtract(center)
 	angle := relative.Angle()
 
 	if s.firstAngle == 0 {
