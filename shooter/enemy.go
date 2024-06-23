@@ -67,6 +67,25 @@ func (e *Enemy) bulletInitParams() (start, velocity geom.PointF) {
 	return e.Hit.Center, geom.PointFFromPolar(abs, angle)
 }
 
+func (e *Enemy) HitCircle() geom.Circle {
+	return e.Hit
+}
+
+func (e *Enemy) IsEnemy() bool {
+	return true
+}
+
+func (e *Enemy) Damage(value int) {
+	e.HP -= value
+	if e.HP <= 0 {
+		e.State = StateDead
+	}
+}
+
+func (e *Enemy) IsLiving() bool {
+	return e.State == StateOnStage
+}
+
 type EnemyBullet struct {
 	Power    int
 	Hit      geom.Circle
