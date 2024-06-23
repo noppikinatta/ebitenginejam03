@@ -13,6 +13,13 @@ func (p PointF) Add(other PointF) PointF {
 	}
 }
 
+func (p PointF) Subtract(other PointF) PointF {
+	return PointF{
+		X: p.X - other.X,
+		Y: p.Y - other.Y,
+	}
+}
+
 func (p PointF) Multiply(value float64) PointF {
 	return PointF{
 		X: p.X * value,
