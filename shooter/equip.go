@@ -128,7 +128,7 @@ func (u *EquipUpdaterMissile) Update(equip *Equip) {
 }
 
 func (u *EquipUpdaterMissile) launchMissile(equip *Equip, missile *Missile) {
-	missile.Launch(equip.Position, geom.PointFFromPolar(missile.Velocity.Abs(), equip.Angle))
+	missile.Launch(equip.Position, geom.PointFFromPolar(missile.FirstSpeed, equip.Angle))
 }
 
 func (u *EquipUpdaterMissile) Bullets() []Bullet {
@@ -150,6 +150,7 @@ func (u *EquipUpdaterMissile) Targets() []Target {
 type Missile struct {
 	Hit          geom.Circle
 	Velocity     geom.PointF
+	FirstSpeed   float64
 	Acceleration geom.PointF
 	AccelPower   float64
 	State        State
@@ -383,11 +384,11 @@ func (h *HarakiriSystem) canHitMyShip() bool {
 }
 
 type EquipUpdaterBarrier struct {
-	Hit         geom.Circle
-	Count       int
-	Max         int
-	Interval    int
-	CurrentWait int
+	Hit               geom.Circle
+	Durability        int
+	CurrentDurability int
+	Interval          int
+	CurrentWait       int
 }
 
 func (u *EquipUpdaterBarrier) Update(equip *Equip) {
@@ -398,8 +399,8 @@ func (u *EquipUpdaterBarrier) Update(equip *Equip) {
 		return
 	}
 
-	if u.Count <= 0 {
-		u.Count = u.Max
+	if u.CurrentDurability <= 0 {
+		u.CurrentDurability = u.Durability
 	}
 }
 
@@ -420,14 +421,14 @@ func (u *EquipUpdaterBarrier) IsEnemy() bool {
 }
 
 func (u *EquipUpdaterBarrier) Damage(value int) {
-	u.Count--
-	if u.Count <= 0 {
+	u.CurrentDurability--
+	if u.CurrentDurability <= 0 {
 		u.CurrentWait = u.Interval
 	}
 }
 
 func (u *EquipUpdaterBarrier) IsLiving() bool {
-	return u.Count > 0
+	return u.CurrentDurability > 0
 }
 
 type EquipUpdaterExhaust struct {
