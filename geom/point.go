@@ -28,15 +28,11 @@ func (p PointF) Multiply(value float64) PointF {
 }
 
 func (p PointF) Angle() float64 {
-	return math.Atan2(p.X, p.Y)
+	return math.Atan2(p.Y, p.X)
 }
 
 func (p PointF) Abs() float64 {
 	return math.Sqrt(p.X*p.X + p.Y*p.Y)
-}
-
-func (p PointF) DirectionRad() float64 {
-	return math.Atan2(p.Y, p.X)
 }
 
 func (p PointF) Distance(other PointF) float64 {
