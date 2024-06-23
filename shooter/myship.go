@@ -66,3 +66,11 @@ func (m *MyShip) Targets() []Target {
 	tt = append(tt, m)
 	return tt
 }
+
+func (m *MyShip) VisibleEntities() []VisibleEntity {
+	vv := make([]VisibleEntity, 0)
+	for _, e := range m.Equips {
+		vv = append(vv, e.Updater.VisibleEntities()...)
+	}
+	return vv
+}
