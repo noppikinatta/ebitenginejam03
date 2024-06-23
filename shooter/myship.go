@@ -33,3 +33,19 @@ func (m *MyShip) Update(enemies []*Enemy) {
 		e.Update(enemies)
 	}
 }
+
+func (m *MyShip) HitCircle() geom.Circle {
+	return m.Hit
+}
+
+func (m *MyShip) IsEnemy() bool {
+	return false
+}
+
+func (m *MyShip) Damage(value int) {
+	m.HP -= value
+}
+
+func (m *MyShip) IsLiving() bool {
+	return m.HP > 0
+}
