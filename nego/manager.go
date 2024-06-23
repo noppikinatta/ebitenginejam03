@@ -1,4 +1,4 @@
-package build
+package nego
 
 type Manager struct {
 	Name       string

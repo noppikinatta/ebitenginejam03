@@ -1,4 +1,4 @@
-package build
+package nego
 
 import (
 	"github.com/noppikinatta/ebitenginejam03/geom"

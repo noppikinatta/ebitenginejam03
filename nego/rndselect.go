@@ -1,4 +1,4 @@
-package build
+package nego
 
 import "math/rand/v2"
 

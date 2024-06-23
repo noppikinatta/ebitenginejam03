@@ -1,4 +1,4 @@
-package build
+package nego
 
 type Equip struct {
 	Name          string

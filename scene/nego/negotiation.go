@@ -8,22 +8,22 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/noppikinatta/ebitenginejam03/build"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/name"
+	"github.com/noppikinatta/ebitenginejam03/nego"
 )
 
 type negotiationGameScene struct {
-	Negotiation *build.Negotiation
+	Negotiation *nego.Negotiation
 	StagePos    geom.PointF
 }
 
 func newNegotiationGameScene() *negotiationGameScene {
-	n := build.Negotiation{
+	n := nego.Negotiation{
 		Size:          geom.PointF{X: 600, Y: 600},
-		DecisionMaker: build.NewDecisionMaker(0, 100),
-		VendorSelector: build.NewVendorSelector(
+		DecisionMaker: nego.NewDecisionMaker(0, 100),
+		VendorSelector: nego.NewVendorSelector(
 			createVendors(),
 			180,
 			rand.New(rndSrc())),
@@ -315,19 +315,19 @@ func (s *negotiationGameScene) Reset() {
 	s.Negotiation.Reset(10000)
 }
 
-func createVendors() []*build.Vendor {
+func createVendors() []*nego.Vendor {
 	pm := createProposals()
 
-	vv := make([]*build.Vendor, 0)
-	vv = append(vv, build.NewVendor(name.VendorSamuraiAvionics, selectProposals(pm, name.EquipLaserCannon, name.EquipSpaceMissile, name.EquipHarakiriSystem), rand.New(rndSrc())))
-	vv = append(vv, build.NewVendor(name.VendorSalamisIndustry, selectProposals(pm, name.EquipBarrier, name.EquipArmorPlate, name.EquipThermalExhaustPort), rand.New(rndSrc())))
-	vv = append(vv, build.NewVendor(name.VendorCultualVictoryCo, selectProposals(pm, name.EquipStonehenge, name.EquipSushiBar, name.EquipOperaHouse), rand.New(rndSrc())))
+	vv := make([]*nego.Vendor, 0)
+	vv = append(vv, nego.NewVendor(name.VendorSamuraiAvionics, selectProposals(pm, name.EquipLaserCannon, name.EquipSpaceMissile, name.EquipHarakiriSystem), rand.New(rndSrc())))
+	vv = append(vv, nego.NewVendor(name.VendorSalamisIndustry, selectProposals(pm, name.EquipBarrier, name.EquipArmorPlate, name.EquipThermalExhaustPort), rand.New(rndSrc())))
+	vv = append(vv, nego.NewVendor(name.VendorCultualVictoryCo, selectProposals(pm, name.EquipStonehenge, name.EquipSushiBar, name.EquipOperaHouse), rand.New(rndSrc())))
 
 	return vv
 }
 
-func selectProposals(m map[string]*build.Proposal, names ...string) []*build.Proposal {
-	pp := make([]*build.Proposal, 0, len(names))
+func selectProposals(m map[string]*nego.Proposal, names ...string) []*nego.Proposal {
+	pp := make([]*nego.Proposal, 0, len(names))
 	for _, n := range names {
 		pp = append(pp, m[n])
 	}
@@ -335,15 +335,15 @@ func selectProposals(m map[string]*build.Proposal, names ...string) []*build.Pro
 	return pp
 }
 
-func createProposals() map[string]*build.Proposal {
+func createProposals() map[string]*nego.Proposal {
 	hit := geom.Circle{Radius: 32}
 	velocity := geom.PointF{Y: -1}
 
-	m := make(map[string]*build.Proposal)
+	m := make(map[string]*nego.Proposal)
 
 	addEquip := func(name string, cost int) {
-		m[name] = &build.Proposal{
-			Equip:    &build.Equip{Name: name},
+		m[name] = &nego.Proposal{
+			Equip:    &nego.Equip{Name: name},
 			Cost:     cost,
 			Hit:      hit,
 			Velocity: velocity,
@@ -363,22 +363,22 @@ func createProposals() map[string]*build.Proposal {
 	return m
 }
 
-func createManagers() []*build.Manager {
-	mm := make([]*build.Manager, 0)
-	mm = append(mm, build.NewManager(
+func createManagers() []*nego.Manager {
+	mm := make([]*nego.Manager, 0)
+	mm = append(mm, nego.NewManager(
 		name.ManagerMachSonic,
-		&build.ProposalProcessorAccelerate{Value: 2},
-		&build.ProposalProcessorStopRotate{},
-		&build.ProposalProcessorCustomImageName{ImageName: ""}))
-	mm = append(mm, build.NewManager(
+		&nego.ProposalProcessorAccelerate{Value: 2},
+		&nego.ProposalProcessorStopRotate{},
+		&nego.ProposalProcessorCustomImageName{ImageName: ""}))
+	mm = append(mm, nego.NewManager(
 		name.ManagerBirdiePat,
-		&build.ProposalProcessorReduceCost{Multiplier: 0.8},
-		&build.ProposalProcessorCustomImageName{ImageName: name.EquipImageGolf}))
-	mm = append(mm, build.NewManager(
+		&nego.ProposalProcessorReduceCost{Multiplier: 0.8},
+		&nego.ProposalProcessorCustomImageName{ImageName: name.EquipImageGolf}))
+	mm = append(mm, nego.NewManager(
 		name.ManagerLongWinded,
-		&build.ProposalProcessorAccelerate{Value: 0.8},
-		&build.ProposalProcessorRotate{Value: 1},
-		&build.ProposalProcessorImprove{}))
+		&nego.ProposalProcessorAccelerate{Value: 0.8},
+		&nego.ProposalProcessorRotate{Value: 1},
+		&nego.ProposalProcessorImprove{}))
 
 	return mm
 }
