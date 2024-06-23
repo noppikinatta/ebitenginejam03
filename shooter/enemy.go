@@ -116,6 +116,10 @@ func (e *Enemy) Launch(start, velocity geom.PointF, firstWait int) {
 }
 
 func (e *Enemy) Update() {
+	for _, b := range e.Bullets {
+		b.Update()
+	}
+
 	if e.State != StateOnStage {
 		return
 	}
@@ -137,15 +141,13 @@ func (e *Enemy) shoot() {
 
 	shot := false
 	for _, b := range e.Bullets {
-		b.Update()
 		if b.IsLiving() {
 			continue
 		}
 
-		if !shot {
-			b.Shoot(e.bulletInitParams())
-			shot = true
-		}
+		b.Shoot(e.bulletInitParams())
+		shot = true
+		break
 	}
 
 	interval := e.ShootingInterval
