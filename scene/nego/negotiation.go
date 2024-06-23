@@ -5,13 +5,13 @@ import (
 	"image/color"
 	"math"
 	"math/rand/v2"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/name"
 	"github.com/noppikinatta/ebitenginejam03/nego"
+	"github.com/noppikinatta/ebitenginejam03/random"
 )
 
 type negotiationGameScene struct {
@@ -26,7 +26,7 @@ func newNegotiationGameScene() *negotiationGameScene {
 		VendorSelector: nego.NewVendorSelector(
 			createVendors(),
 			180,
-			rand.New(rndSrc())),
+			rand.New(random.Source())),
 		Managers: createManagers(),
 		Money:    10000,
 	}
@@ -319,9 +319,18 @@ func createVendors() []*nego.Vendor {
 	pm := createProposals()
 
 	vv := make([]*nego.Vendor, 0)
-	vv = append(vv, nego.NewVendor(name.VendorSamuraiAvionics, selectProposals(pm, name.EquipLaserCannon, name.EquipSpaceMissile, name.EquipHarakiriSystem), rand.New(rndSrc())))
-	vv = append(vv, nego.NewVendor(name.VendorSalamisIndustry, selectProposals(pm, name.EquipBarrier, name.EquipArmorPlate, name.EquipThermalExhaustPort), rand.New(rndSrc())))
-	vv = append(vv, nego.NewVendor(name.VendorCultualVictoryCo, selectProposals(pm, name.EquipStonehenge, name.EquipSushiBar, name.EquipOperaHouse), rand.New(rndSrc())))
+	vv = append(vv, nego.NewVendor(
+		name.VendorSamuraiAvionics,
+		selectProposals(pm, name.EquipLaserCannon, name.EquipSpaceMissile, name.EquipHarakiriSystem),
+		rand.New(random.Source())))
+	vv = append(vv, nego.NewVendor(
+		name.VendorSalamisIndustry,
+		selectProposals(pm, name.EquipBarrier, name.EquipArmorPlate, name.EquipThermalExhaustPort),
+		rand.New(random.Source())))
+	vv = append(vv, nego.NewVendor(
+		name.VendorCultualVictoryCo,
+		selectProposals(pm, name.EquipStonehenge, name.EquipSushiBar, name.EquipOperaHouse),
+		rand.New(random.Source())))
 
 	return vv
 }
@@ -381,24 +390,4 @@ func createManagers() []*nego.Manager {
 		&nego.ProposalProcessorImprove{}))
 
 	return mm
-}
-
-var rndCount byte
-var chacha8Base [32]byte = [32]byte{
-	3, 14, 15, 92, 65, 35, 89, 79,
-	32, 38, 64, 26, 43, 38, 32, 79,
-	50, 28, 84, 19, 71, 69, 39, 93,
-	75, 10, 58, 20, 97, 49, 44, 59,
-}
-
-func rndSrc() rand.Source {
-	r := byte(time.Now().UnixNano() % 256)
-	r += rndCount
-	rndCount++
-	c8src := [32]byte{}
-	for i := range c8src {
-		c8src[i] = chacha8Base[i] + r
-	}
-
-	return rand.NewChaCha8(c8src)
 }
