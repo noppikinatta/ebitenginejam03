@@ -7,6 +7,96 @@ import (
 	"github.com/noppikinatta/ebitenginejam03/geom"
 )
 
+type EnemyLauncher struct {
+	Enemies     []*Enemy
+	Speed       float64
+	FirstWait   int
+	Rnd         *rand.Rand
+	StageSize   geom.PointF
+	Interval    int
+	CurrentWait int
+	Annihilated bool
+}
+
+func (l *EnemyLauncher) Update() {
+	for _, e := range l.Enemies {
+		e.Update()
+	}
+
+	if l.CurrentWait > 0 {
+		l.CurrentWait--
+		return
+	}
+	l.CurrentWait = int(float64(l.Interval) * (l.Rnd.Float64()*0.4 + 0.8))
+	l.launch()
+}
+
+func (l *EnemyLauncher) launch() {
+	enemyRemaining := false
+	for _, e := range l.Enemies {
+		if e.State != StateReady {
+			if e.State == StateOnStage {
+				enemyRemaining = true
+			}
+			continue
+		}
+
+		start := l.startPos()
+		velocity := l.velocity(start)
+		e.Launch(start, velocity, l.FirstWait)
+		return // annihilated flag is not set
+	}
+
+	if !enemyRemaining {
+		l.Annihilated = true
+	}
+}
+
+func (l *EnemyLauncher) startPos() geom.PointF {
+	ratio := l.Rnd.Float64()
+	var zeroOrMax float64 = 0
+	if l.Rnd.Float64() < 0.5 {
+		zeroOrMax = 1
+	}
+
+	if l.Rnd.Float64() < 0.5 {
+		return geom.PointF{
+			X: ratio * l.StageSize.X,
+			Y: zeroOrMax * l.StageSize.Y,
+		}
+	} else {
+		return geom.PointF{
+			X: zeroOrMax * l.StageSize.X,
+			Y: ratio * l.StageSize.Y,
+		}
+	}
+}
+
+func (l *EnemyLauncher) velocity(start geom.PointF) geom.PointF {
+	center := l.StageSize.Multiply(0.5)
+	angle := center.Subtract(start).Angle()
+	speed := l.Speed * (rand.Float64()*0.4 + 0.8)
+	return geom.PointFFromPolar(speed, angle)
+}
+
+func (l *EnemyLauncher) Bullets() []Bullet {
+	bb := make([]Bullet, 0)
+	for _, e := range l.Enemies {
+		for _, b := range e.Bullets {
+			bb = append(bb, b)
+		}
+	}
+	return bb
+}
+
+func (l *EnemyLauncher) Targets() []Target {
+	tt := make([]Target, 0)
+	for _, e := range l.Enemies {
+		tt = append(tt, e)
+	}
+	return tt
+}
+
 type Enemy struct {
 	HP               int
 	State            State
@@ -16,6 +106,13 @@ type Enemy struct {
 	CurrentWait      int
 	Bullets          []*EnemyBullet
 	Rnd              *rand.Rand
+}
+
+func (e *Enemy) Launch(start, velocity geom.PointF, firstWait int) {
+	e.State = StateOnStage
+	e.Hit.Center = start
+	e.Velocity = velocity
+	e.CurrentWait = firstWait
 }
 
 func (e *Enemy) Update() {

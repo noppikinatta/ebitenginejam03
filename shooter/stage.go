@@ -3,11 +3,11 @@ package shooter
 import "github.com/noppikinatta/ebitenginejam03/geom"
 
 type Stage struct {
-	Size       geom.PointF
-	firstAngle float64
-	MyShip     *MyShip
-	Enemies    []*Enemy
-	HitTest    *HitTest
+	Size          geom.PointF
+	firstAngle    float64
+	MyShip        *MyShip
+	EnemyLauncher *EnemyLauncher
+	HitTest       *HitTest
 }
 
 func (s *Stage) Update(cursorPos geom.PointF) {
@@ -39,9 +39,7 @@ func (s *Stage) updateMyShip() {
 }
 
 func (s *Stage) updateEnemies() {
-	for _, e := range s.Enemies {
-		e.Update()
-	}
+	s.EnemyLauncher.Update()
 }
 
 func (s *Stage) updateHitTest() {

@@ -12,26 +12,43 @@ import (
 )
 
 type battleGameScene struct {
-	Stage    *shooter.Stage
-	StagePos geom.PointF
+	initialized bool
+	orderer     func() []*nego.Equip
+	Stage       *shooter.Stage
+	StagePos    geom.PointF
 }
 
-func newBattleGameScene(orders []*nego.Equip) *battleGameScene {
+func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
 	s := shooter.Stage{
 		Size: geom.PointF{X: 600, Y: 600},
 	}
 
-	s.MyShip = buildMyShip(s.Size, orders)
-
 	return &battleGameScene{
-		Stage: &s,
+		orderer:  orderer,
+		Stage:    &s,
+		StagePos: geom.PointF{X: 0, Y: 40},
 	}
 }
 
-func buildMyShip(stageSize geom.PointF, orders []*nego.Equip) *shooter.MyShip {
+func (s *battleGameScene) Update() error {
+	if !s.initialized {
+		s.init()
+		s.initialized = true
+	}
+
+}
+
+func (s *battleGameScene) init() {
+	orders := s.orderer()
+	s.Stage.MyShip = s.buildMyShip(orders)
+	s.Stage.EnemyLauncher = s.createEnemies()
+	s.Stage.HitTest = s.createHitTest()
+}
+
+func (s *battleGameScene) buildMyShip(orders []*nego.Equip) *shooter.MyShip {
 	myship := shooter.MyShip{
 		HP:  1000,
-		Hit: geom.Circle{Center: stageSize.Multiply(0.5), Radius: stageSize.Abs() * 0.2},
+		Hit: geom.Circle{Center: s.Stage.Size.Multiply(0.5), Radius: 100},
 	}
 
 	build.BuildEquips(&myship, orders)
@@ -39,7 +56,7 @@ func buildMyShip(stageSize geom.PointF, orders []*nego.Equip) *shooter.MyShip {
 	return &myship
 }
 
-func createEnemies() []*shooter.Enemy {
+func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
 	ee := make([]*shooter.Enemy, 100)
 
 	for i := range len(ee) {
@@ -48,15 +65,22 @@ func createEnemies() []*shooter.Enemy {
 			State:            shooter.StateReady,
 			Hit:              geom.Circle{Radius: 32},
 			ShootingInterval: 180,
-			Bullets:          createBullets(),
+			Bullets:          s.createBullets(),
 			Rnd:              rand.New(random.Source()),
 		}
 	}
 
-	return ee
+	return &shooter.EnemyLauncher{
+		Enemies:   ee,
+		Speed:     1,
+		FirstWait: 180,
+		Rnd:       rand.New(random.Source()),
+		StageSize: s.Stage.Size,
+		Interval:  60,
+	}
 }
 
-func createBullets() []*shooter.EnemyBullet {
+func (s *battleGameScene) createBullets() []*shooter.EnemyBullet {
 	bb := make([]*shooter.EnemyBullet, 4)
 
 	for i := range len(bb) {
@@ -70,8 +94,16 @@ func createBullets() []*shooter.EnemyBullet {
 	return bb
 }
 
-func (s *battleGameScene) Update() error {
+func (s *battleGameScene) createHitTest() *shooter.HitTest {
+	bb := s.Stage.EnemyLauncher.Bullets()
+	tt := s.Stage.EnemyLauncher.Targets()
+	bb = append(bb, s.Stage.MyShip.Bullets()...)
+	tt = append(tt, s.Stage.MyShip.Targets()...)
 
+	return &shooter.HitTest{
+		Bullets: bb,
+		Targets: tt,
+	}
 }
 
 func (s *battleGameScene) Draw(screen *ebiten.Image) {
@@ -83,5 +115,5 @@ func (s *battleGameScene) End() bool {
 }
 
 func (s *battleGameScene) Reset() {
-
+	s.initialized = false
 }

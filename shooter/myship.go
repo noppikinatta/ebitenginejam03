@@ -49,3 +49,20 @@ func (m *MyShip) Damage(value int) {
 func (m *MyShip) IsLiving() bool {
 	return m.HP > 0
 }
+
+func (m *MyShip) Bullets() []Bullet {
+	bb := make([]Bullet, 0)
+	for _, e := range m.Equips {
+		bb = append(bb, e.Updater.Bullets()...)
+	}
+	return bb
+}
+
+func (m *MyShip) Targets() []Target {
+	tt := make([]Target, 0)
+	for _, e := range m.Equips {
+		tt = append(tt, e.Updater.Targets()...)
+	}
+	tt = append(tt, m)
+	return tt
+}
