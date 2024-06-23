@@ -6,6 +6,8 @@ type Stage struct {
 	Size       geom.PointF
 	firstAngle float64
 	MyShip     *MyShip
+	Enemies    []*Enemy
+	HitTest    *HitTest
 }
 
 func (s *Stage) Update(cursorPos geom.PointF) {
@@ -13,6 +15,7 @@ func (s *Stage) Update(cursorPos geom.PointF) {
 	s.updateMyShipAngle(angle)
 	s.updateMyShip()
 	s.updateEnemies()
+	s.updateHitTest()
 }
 
 func (s *Stage) calcAngle(cursorPos geom.PointF) float64 {
@@ -32,9 +35,15 @@ func (s *Stage) updateMyShipAngle(angle float64) {
 }
 
 func (s *Stage) updateMyShip() {
-
+	s.MyShip.Update()
 }
 
 func (s *Stage) updateEnemies() {
+	for _, e := range s.Enemies {
+		e.Update()
+	}
+}
 
+func (s *Stage) updateHitTest() {
+	s.HitTest.Update()
 }

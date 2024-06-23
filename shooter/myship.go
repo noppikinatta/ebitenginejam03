@@ -28,9 +28,9 @@ func (m *MyShip) UpdateAngle(angle float64) {
 	}
 }
 
-func (m *MyShip) Update(enemies []*Enemy) {
+func (m *MyShip) Update() {
 	for _, e := range m.Equips {
-		e.Update(enemies)
+		e.Update()
 	}
 }
 
