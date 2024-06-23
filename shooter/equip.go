@@ -542,6 +542,10 @@ func (u *EquipUpdaterExhaust) Targets() []Target {
 	return []Target{u}
 }
 
+func (u *EquipUpdaterExhaust) VisibleEntities() []VisibleEntity {
+	return nil
+}
+
 func (u *EquipUpdaterExhaust) HitCircle() geom.Circle {
 	return u.Hit
 }
