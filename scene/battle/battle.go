@@ -36,6 +36,12 @@ func (s *battleGameScene) Update() error {
 		s.initialized = true
 	}
 
+	x, y := ebiten.CursorPosition()
+	cursorPos := geom.PointF{X: float64(x), Y: float64(y)}
+	cursorPos = cursorPos.Subtract(s.StagePos)
+	s.Stage.Update(cursorPos)
+
+	return nil
 }
 
 func (s *battleGameScene) init() {
@@ -111,7 +117,7 @@ func (s *battleGameScene) Draw(screen *ebiten.Image) {
 }
 
 func (s *battleGameScene) End() bool {
-
+	return s.Stage.End()
 }
 
 func (s *battleGameScene) Reset() {

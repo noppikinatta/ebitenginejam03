@@ -36,7 +36,7 @@ func newNegotiationGameScene() *negotiationGameScene {
 
 func (s *negotiationGameScene) Update() error {
 	x, _ := ebiten.CursorPosition()
-	x += int(s.StagePos.X)
+	x -= int(s.StagePos.X)
 	s.Negotiation.Update(float64(x))
 	return nil
 }

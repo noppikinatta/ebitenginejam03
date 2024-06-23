@@ -8,7 +8,7 @@ import (
 func NewBattleScene(orderer func() []*nego.Equip) scene.Scene {
 	return scene.NewContainer(
 		scene.NewFadeIn(15),
-		newBattleGameScene(orders),
+		newBattleGameScene(orderer),
 		scene.NewFadeOut(15),
 	)
 }

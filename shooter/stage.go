@@ -45,3 +45,17 @@ func (s *Stage) updateEnemies() {
 func (s *Stage) updateHitTest() {
 	s.HitTest.Update()
 }
+
+func (s *Stage) End() bool {
+	if s.EnemyLauncher.Annihilated {
+		return true
+	}
+	if !s.MyShip.IsLiving() {
+		return true
+	}
+	return false
+}
+
+func (s *Stage) Won() bool {
+	return s.End() && s.MyShip.IsLiving()
+}
