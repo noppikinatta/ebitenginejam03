@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/noppikinatta/ebitenginejam03/geom"
+	"github.com/noppikinatta/ebitenginejam03/name"
 )
 
 type Equip struct {
@@ -28,17 +29,19 @@ type EquipUpdater interface {
 	Update(equip *Equip)
 	Bullets() []Bullet
 	Targets() []Target
+	VisibleEntities() []VisibleEntity
 }
 
 type EquipUpdaterNop struct{}
 
-func (u *EquipUpdaterNop) Update(equip *Equip) {}
-func (u *EquipUpdaterNop) Bullets() []Bullet   { return nil }
-func (u *EquipUpdaterNop) Targets() []Target   { return nil }
+func (u *EquipUpdaterNop) Update(equip *Equip)              {}
+func (u *EquipUpdaterNop) Bullets() []Bullet                { return nil }
+func (u *EquipUpdaterNop) Targets() []Target                { return nil }
+func (u *EquipUpdaterNop) VisibleEntities() []VisibleEntity { return nil }
 
 type EquipUpdaterLaser struct {
 	ShipHit     geom.Circle
-	Position    geom.PointF
+	Pos         geom.PointF
 	LastFrames  int
 	Interval    int
 	CurrentWait int
@@ -48,7 +51,7 @@ type EquipUpdaterLaser struct {
 }
 
 func (u *EquipUpdaterLaser) Update(equip *Equip) {
-	u.Position = equip.Position
+	u.Pos = equip.Position
 
 	if u.CurrentWait > 0 {
 		u.CurrentWait--
@@ -71,7 +74,7 @@ func (u *EquipUpdaterLaser) IsLiving() bool {
 }
 
 func (u *EquipUpdaterLaser) HitProcess(targets []Target) {
-	line := geom.LinearFuncFromPt(u.ShipHit.Center, u.Position)
+	line := geom.LinearFuncFromPt(u.ShipHit.Center, u.Pos)
 	for _, target := range targets {
 		if !target.IsEnemy() {
 			continue
@@ -88,8 +91,20 @@ func (u *EquipUpdaterLaser) HitProcess(targets []Target) {
 	}
 }
 
-func (u *EquipUpdaterLaser) LaserLastingRatio() float64 {
+func (u *EquipUpdaterLaser) Position() geom.PointF {
+	return u.Pos
+}
+
+func (u *EquipUpdaterLaser) Angle() float64 {
+	return u.Pos.Subtract(u.ShipHit.Center).Angle()
+}
+
+func (u *EquipUpdaterLaser) VisibleF() float64 {
 	return float64(u.CurrentLast) / float64(u.LastFrames)
+}
+
+func (u *EquipUpdaterLaser) Name() string {
+	return name.EquipLaserCannon
 }
 
 func (u *EquipUpdaterLaser) Bullets() []Bullet {
@@ -98,6 +113,10 @@ func (u *EquipUpdaterLaser) Bullets() []Bullet {
 
 func (u *EquipUpdaterLaser) Targets() []Target {
 	return nil
+}
+
+func (u *EquipUpdaterLaser) VisibleEntities() []VisibleEntity {
+	return []VisibleEntity{u}
 }
 
 type EquipUpdaterMissile struct {
@@ -145,6 +164,14 @@ func (u *EquipUpdaterMissile) Targets() []Target {
 		tt[i] = u.Missiles[i]
 	}
 	return tt
+}
+
+func (u *EquipUpdaterMissile) VisibleEntities() []VisibleEntity {
+	vv := make([]VisibleEntity, len(u.Missiles))
+	for i := range u.Missiles {
+		vv[i] = u.Missiles[i]
+	}
+	return vv
 }
 
 type Missile struct {
@@ -227,6 +254,25 @@ func (m *Missile) IsEnemy() bool {
 
 func (m *Missile) Damage(value int) {
 	m.State = StateReady
+}
+
+func (m *Missile) Position() geom.PointF {
+	return m.Hit.Center
+}
+
+func (m *Missile) Angle() float64 {
+	return m.Velocity.Angle()
+}
+
+func (m *Missile) VisibleF() float64 {
+	if m.State == StateOnStage {
+		return 1
+	}
+	return 0
+}
+
+func (m *Missile) Name() string {
+	return name.EquipSpaceMissile
 }
 
 type EquipUpdaterHarakiriSystem struct {
@@ -319,6 +365,14 @@ func (u *EquipUpdaterHarakiriSystem) Targets() []Target {
 	return nil
 }
 
+func (u *EquipUpdaterHarakiriSystem) VisibleEntities() []VisibleEntity {
+	vv := make([]VisibleEntity, len(u.Harakiris)+1)
+	for i := range u.Harakiris {
+		vv[i] = u.Harakiris[i]
+	}
+	return vv
+}
+
 type HarakiriSystem struct {
 	Hit          geom.Circle
 	Velocity     geom.PointF
@@ -383,6 +437,25 @@ func (h *HarakiriSystem) canHitMyShip() bool {
 	return abs2 > abs1
 }
 
+func (h *HarakiriSystem) Position() geom.PointF {
+	return h.Hit.Center
+}
+
+func (h *HarakiriSystem) Angle() float64 {
+	return h.Velocity.Angle()
+}
+
+func (h *HarakiriSystem) VisibleF() float64 {
+	if h.State == StateOnStage {
+		return 1
+	}
+	return 0
+}
+
+func (h *HarakiriSystem) Name() string {
+	return name.EquipHarakiriSystem
+}
+
 type EquipUpdaterBarrier struct {
 	Hit               geom.Circle
 	Durability        int
@@ -412,6 +485,10 @@ func (u *EquipUpdaterBarrier) Targets() []Target {
 	return []Target{u}
 }
 
+func (u *EquipUpdaterBarrier) VisibleEntities() []VisibleEntity {
+	return []VisibleEntity{u}
+}
+
 func (u *EquipUpdaterBarrier) HitCircle() geom.Circle {
 	return u.Hit
 }
@@ -429,6 +506,22 @@ func (u *EquipUpdaterBarrier) Damage(value int) {
 
 func (u *EquipUpdaterBarrier) IsLiving() bool {
 	return u.CurrentDurability > 0
+}
+
+func (u *EquipUpdaterBarrier) Position() geom.PointF {
+	return u.Hit.Center
+}
+
+func (u *EquipUpdaterBarrier) Angle() float64 {
+	return 0
+}
+
+func (u *EquipUpdaterBarrier) VisibleF() float64 {
+	return float64(u.CurrentDurability) / float64(u.Durability)
+}
+
+func (u *EquipUpdaterBarrier) Name() string {
+	return name.EquipBarrier
 }
 
 type EquipUpdaterExhaust struct {
