@@ -73,7 +73,7 @@ func (u *EquipUpdaterLaser) IsLiving() bool {
 	return u.CurrentLast > 0
 }
 
-func (u *EquipUpdaterLaser) HitProcess(targets []Target) {
+func (u *EquipUpdaterLaser) HitProcess(targets []Target) geom.Circle {
 	line := geom.LinearFuncFromPt(u.ShipHit.Center, u.Pos)
 	for _, target := range targets {
 		if !target.IsEnemy() {
@@ -96,6 +96,8 @@ func (u *EquipUpdaterLaser) HitProcess(targets []Target) {
 
 		target.Damage(u.Power)
 	}
+
+	return geom.Circle{}
 }
 
 func (u *EquipUpdaterLaser) Position() geom.PointF {
@@ -219,13 +221,16 @@ func (m *Missile) IsLiving() bool {
 	return m.State != MissileStateReady
 }
 
-func (m *Missile) HitProcess(targets []Target) {
+func (m *Missile) HitProcess(targets []Target) geom.Circle {
 	switch m.State {
 	case MissileStateCruising:
 		m.hitProcessCruising(targets)
 	case MissileStateExploding:
 		m.hitProcessExploding(targets)
+		return geom.Circle{Center: m.Hit.Center, Radius: m.ExplodeRadius}
 	}
+
+	return geom.Circle{}
 }
 
 func (m *Missile) hitProcessCruising(targets []Target) {
@@ -301,9 +306,6 @@ func (m *Missile) Damage(value int) float64 {
 		m.State = MissileStateExploding
 	}
 
-	if m.State == MissileStateExploding {
-		return m.ExplodeRadius
-	}
 	return 0
 }
 
@@ -383,7 +385,7 @@ func (u *EquipUpdaterHarakiriSystem) IsLiving() bool {
 	return true
 }
 
-func (u *EquipUpdaterHarakiriSystem) HitProcess(targets []Target) {
+func (u *EquipUpdaterHarakiriSystem) HitProcess(targets []Target) geom.Circle {
 	// just aiming
 	var found bool
 	var closestAngle float64 = math.Pi * 2
@@ -409,6 +411,8 @@ func (u *EquipUpdaterHarakiriSystem) HitProcess(targets []Target) {
 
 	u.Target = closedTarget
 	u.HasTarget = found
+
+	return geom.Circle{}
 }
 
 func (u *EquipUpdaterHarakiriSystem) Bullets() []Bullet {
@@ -462,7 +466,7 @@ func (h *HarakiriSystem) IsLiving() bool {
 	return h.Cruising
 }
 
-func (h *HarakiriSystem) HitProcess(targets []Target) {
+func (h *HarakiriSystem) HitProcess(targets []Target) geom.Circle {
 	canHitMyShip := h.canHitMyShip()
 
 	exploded := false
@@ -486,6 +490,8 @@ func (h *HarakiriSystem) HitProcess(targets []Target) {
 	if exploded {
 		h.Cruising = false
 	}
+
+	return geom.Circle{}
 }
 
 func (h *HarakiriSystem) canHitMyShip() bool {

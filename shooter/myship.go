@@ -44,7 +44,7 @@ func (m *MyShip) IsEnemy() bool {
 
 func (m *MyShip) Damage(value int) float64 {
 	m.HP -= value
-	return float64(value) * 0.5
+	return 0
 }
 
 func (m *MyShip) IsLiving() bool {

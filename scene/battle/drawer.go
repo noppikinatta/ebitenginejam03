@@ -152,3 +152,113 @@ type barrierDrawer struct{}
 func (d *barrierDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity) {
 
 }
+
+type explosionDrawer struct {
+	Color      color.Color
+	StagePos   geom.PointF
+	explosions []*explosion
+}
+
+func (d *explosionDrawer) Add(at geom.Circle) {
+	for _, e := range d.explosions {
+		if e.Alpha == 0 {
+			e.At = at
+			e.Alpha = 1
+			return
+		}
+	}
+
+	d.explosions = append(d.explosions, &explosion{At: at, Alpha: 1})
+}
+
+func (d *explosionDrawer) Update() {
+	for _, e := range d.explosions {
+		e.Update()
+	}
+}
+
+func (d *explosionDrawer) Draw(screen *ebiten.Image) {
+	for _, e := range d.explosions {
+		e.Draw(screen, d.StagePos, d.Color)
+	}
+}
+
+type explosion struct {
+	At    geom.Circle
+	Alpha float64
+}
+
+func (e *explosion) Update() {
+	if e.Alpha <= 0 {
+		return
+	}
+
+	e.Alpha -= (0.4 / e.At.Radius)
+	if e.Alpha < 0 {
+		e.Alpha = 0
+	}
+}
+
+func (e *explosion) Draw(screen *ebiten.Image, stagePos geom.PointF, clr color.Color) {
+	if e.Alpha == 0 {
+		return
+	}
+
+	cx := float32(e.At.Center.X + stagePos.X)
+	cy := float32(e.At.Center.Y + stagePos.Y)
+	cr := float32(e.At.Radius)
+
+	r, g, b, _ := clr.RGBA()
+	r16 := uint16(float64(r) * e.Alpha)
+	g16 := uint16(float64(g) * e.Alpha)
+	b16 := uint16(float64(b) * e.Alpha)
+	a16 := uint16(float64(0x00ff) * e.Alpha)
+	c := color.RGBA64{R: r16, G: g16, B: b16, A: a16}
+
+	vector.DrawFilledCircle(screen, cx, cy, cr, c, true)
+}
+
+type explosionBullet struct {
+	bullet shooter.Bullet
+	Drawer *explosionDrawer
+}
+
+func (b *explosionBullet) IsLiving() bool {
+	return b.bullet.IsLiving()
+}
+
+func (b *explosionBullet) HitProcess(targets []shooter.Target) geom.Circle {
+	explosionCircle := b.bullet.HitProcess(targets)
+	if explosionCircle.Radius > 0 {
+		b.Drawer.Add(explosionCircle)
+	}
+
+	return explosionCircle
+}
+
+type explosionTarget struct {
+	target shooter.Target
+	Drawer *explosionDrawer
+}
+
+func (t *explosionTarget) HitCircle() geom.Circle {
+	return t.target.HitCircle()
+}
+
+func (t *explosionTarget) IsEnemy() bool {
+	return t.target.IsEnemy()
+}
+
+func (t *explosionTarget) Damage(value int) float64 {
+	explosionRadius := t.target.Damage(value)
+	if explosionRadius > 0 {
+		at := t.target.HitCircle()
+		at.Radius = explosionRadius
+		t.Drawer.Add(at)
+	}
+	return explosionRadius
+}
+
+func (t *explosionTarget) IsLiving() bool {
+	return t.target.IsLiving()
+}

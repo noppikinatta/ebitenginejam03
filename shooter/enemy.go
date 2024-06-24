@@ -219,7 +219,7 @@ func (b *EnemyBullet) IsLiving() bool {
 	return b.Cruising
 }
 
-func (b *EnemyBullet) HitProcess(targets []Target) {
+func (b *EnemyBullet) HitProcess(targets []Target) geom.Circle {
 	for _, t := range targets {
 		if !t.IsLiving() {
 			continue
@@ -232,8 +232,13 @@ func (b *EnemyBullet) HitProcess(targets []Target) {
 			continue
 		}
 
-		t.Damage(b.Power)
+		r := t.Damage(b.Power)
+		if r > 0 {
+			return geom.Circle{Center: b.Hit.Center, Radius: r}
+		}
 		b.Cruising = false
 		break
 	}
+
+	return geom.Circle{}
 }

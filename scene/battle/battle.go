@@ -24,6 +24,7 @@ type battleGameScene struct {
 	Stage           *shooter.Stage
 	VisibleEntities []shooter.VisibleEntity
 	EntityDrawers   map[string]visibleEntityDrawer
+	explosionDrawer *explosionDrawer
 	StagePos        geom.PointF
 }
 
@@ -49,6 +50,7 @@ func (s *battleGameScene) Update() error {
 	cursorPos := geom.PointF{X: float64(x), Y: float64(y)}
 	cursorPos = cursorPos.Subtract(s.StagePos)
 	s.Stage.Update(cursorPos)
+	s.explosionDrawer.Update()
 
 	return nil
 }
@@ -129,6 +131,23 @@ func (s *battleGameScene) createHitTest() *shooter.HitTest {
 	bb = append(bb, s.Stage.MyShip.Bullets()...)
 	tt = append(tt, s.Stage.MyShip.Targets()...)
 
+	exDrawer := explosionDrawer{
+		StagePos: s.StagePos,
+		Color:    color.RGBA{R: 255, G: 120},
+	}
+
+	for i := range bb {
+		b := &explosionBullet{bullet: bb[i], Drawer: &exDrawer}
+		bb[i] = b
+	}
+
+	for i := range tt {
+		t := &explosionTarget{target: tt[i], Drawer: &exDrawer}
+		tt[i] = t
+	}
+
+	s.explosionDrawer = &exDrawer
+
 	return &shooter.HitTest{
 		Bullets: bb,
 		Targets: tt,
@@ -145,6 +164,7 @@ func (s *battleGameScene) Draw(screen *ebiten.Image) {
 	s.drawMyShip(screen)
 	s.drawVisibleEntities(screen)
 	s.drawEnemies(screen)
+	s.drawExplosions(screen)
 }
 
 func (s *battleGameScene) drawRect(screen *ebiten.Image, topLeft, bottomRight geom.PointF, colorVert ebiten.Vertex) {
@@ -290,6 +310,10 @@ func (s *battleGameScene) drawEnemyBullet(screen *ebiten.Image, b *shooter.Enemy
 	circle := b.Hit
 	circle.Center = circle.Center.Add(s.StagePos)
 	s.drawCircle(screen, circle, color.RGBA{R: 255, G: 180, A: 255}, color.Transparent)
+}
+
+func (s *battleGameScene) drawExplosions(screen *ebiten.Image) {
+	s.explosionDrawer.Draw(screen)
 }
 
 func (s *battleGameScene) End() bool {

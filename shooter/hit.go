@@ -4,7 +4,7 @@ import "github.com/noppikinatta/ebitenginejam03/geom"
 
 type Bullet interface {
 	IsLiving() bool
-	HitProcess(targets []Target)
+	HitProcess(targets []Target) geom.Circle
 }
 
 type Target interface {
