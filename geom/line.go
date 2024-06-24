@@ -11,7 +11,7 @@ type LinearFunc struct {
 
 func LinearFuncFromPt(pt1, pt2 PointF) LinearFunc {
 	a := (pt2.Y - pt1.Y)
-	b := (pt2.X - pt1.X)
+	b := (pt1.X - pt2.X)
 	c := -1 * (pt1.X*a + pt1.Y*b)
 
 	return LinearFunc{a, b, c}
