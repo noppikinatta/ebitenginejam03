@@ -103,6 +103,7 @@ func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
 			State:            shooter.EnemyStateReady,
 			Hit:              geom.Circle{Radius: 8},
 			ShootingInterval: 180,
+			MinCloseToShip:   50,
 			Bullets:          s.createBullets(),
 			Rnd:              rand.New(random.Source()),
 		}
@@ -114,6 +115,7 @@ func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
 		FirstWait: 60,
 		Rnd:       rand.New(random.Source()),
 		StageSize: s.Stage.Size,
+		ShipHit:   s.Stage.MyShip.Hit,
 		Interval:  60,
 	}
 }

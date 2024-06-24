@@ -13,6 +13,7 @@ type EnemyLauncher struct {
 	FirstWait   int
 	Rnd         *rand.Rand
 	StageSize   geom.PointF
+	ShipHit     geom.Circle
 	Interval    int
 	CurrentWait int
 	Annihilated bool
@@ -42,8 +43,7 @@ func (l *EnemyLauncher) launch() {
 		}
 
 		start := l.startPos()
-		velocity := l.velocity(start)
-		e.Launch(start, velocity, l.FirstWait)
+		e.Launch(start, l.Speed, l.ShipHit, l.FirstWait)
 		return // annihilated flag is not set
 	}
 
@@ -72,13 +72,6 @@ func (l *EnemyLauncher) startPos() geom.PointF {
 	}
 }
 
-func (l *EnemyLauncher) velocity(start geom.PointF) geom.PointF {
-	center := l.StageSize.Multiply(0.5)
-	angle := center.Subtract(start).Angle()
-	speed := l.Speed * (rand.Float64()*0.4 + 0.8)
-	return geom.PointFFromPolar(speed, angle)
-}
-
 func (l *EnemyLauncher) Bullets() []Bullet {
 	bb := make([]Bullet, 0)
 	for _, e := range l.Enemies {
@@ -101,18 +94,23 @@ type Enemy struct {
 	HP               int
 	State            EnemyState
 	Hit              geom.Circle
-	Velocity         geom.PointF
+	Speed            float64
+	Clockwise        bool
 	ShootingInterval int
 	CurrentWait      int
+	ShipHit          geom.Circle
+	MinCloseToShip   float64
 	Bullets          []*EnemyBullet
 	Rnd              *rand.Rand
 }
 
-func (e *Enemy) Launch(start, velocity geom.PointF, firstWait int) {
+func (e *Enemy) Launch(start geom.PointF, speed float64, shipHit geom.Circle, firstWait int) {
 	e.State = EnemyStateOnStage
 	e.Hit.Center = start
-	e.Velocity = velocity
+	e.Speed = speed
 	e.CurrentWait = firstWait
+	e.ShipHit = shipHit
+	e.Clockwise = e.Rnd.Float64() < 0.5
 }
 
 func (e *Enemy) Update() {
@@ -129,8 +127,26 @@ func (e *Enemy) Update() {
 		return
 	}
 
-	e.Hit.Center = e.Hit.Center.Add(e.Velocity)
+	e.Hit.Center = e.Hit.Center.Add(e.velocity())
 	e.shoot()
+}
+
+func (e *Enemy) velocity() geom.PointF {
+	velocity := geom.PointF{}
+
+	vecToShip := e.ShipHit.Center.Subtract(e.Hit.Center)
+	allowedDistance := vecToShip.Abs() - (e.MinCloseToShip + e.ShipHit.Radius)
+	if allowedDistance > 0 {
+		velocity = geom.PointFFromPolar(e.Speed*(allowedDistance/e.ShipHit.Radius), vecToShip.Angle())
+	}
+
+	if e.Clockwise {
+		velocity = velocity.Add(geom.PointFFromPolar(e.Speed, vecToShip.Angle()-0.5*math.Pi))
+	} else {
+		velocity = velocity.Add(geom.PointFFromPolar(e.Speed, vecToShip.Angle()+0.5*math.Pi))
+	}
+
+	return velocity
 }
 
 func (e *Enemy) shoot() {
@@ -159,9 +175,9 @@ func (e *Enemy) shoot() {
 }
 
 func (e *Enemy) bulletInitParams() (start, velocity geom.PointF) {
-	angle := e.Velocity.Angle()
+	angle := e.ShipHit.Center.Subtract(e.Hit.Center).Angle()
 	angle += (e.Rnd.Float64()*10 - 5) * math.Pi / 180
-	abs := e.Velocity.Abs() * 4
+	abs := e.Speed * 4
 
 	return e.Hit.Center, geom.PointFFromPolar(abs, angle)
 }
