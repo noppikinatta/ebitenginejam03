@@ -293,7 +293,7 @@ func (b *exhaustPortbuilder) Build(ship *shooter.MyShip, improvedCount int) {
 }
 
 func (b *exhaustPortbuilder) calcedMultiplier(improvedCount int) float64 {
-	return improve(b.Multiplier, 1.5, improvedCount)
+	return improve(b.Multiplier, 1.2, improvedCount)
 }
 
 func (b *exhaustPortbuilder) TemplateData(improvedCount int) map[string]any {
