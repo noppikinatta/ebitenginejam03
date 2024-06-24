@@ -68,7 +68,7 @@ func (s *battleGameScene) init() {
 
 func (s *battleGameScene) buildMyShip(orders []*nego.Equip) *shooter.MyShip {
 	myship := shooter.MyShip{
-		HP:  1000,
+		HP:  10000,
 		Hit: geom.Circle{Center: s.Stage.Size.Multiply(0.5), Radius: 100},
 	}
 
