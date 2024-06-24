@@ -1,7 +1,6 @@
 package shooter
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/noppikinatta/ebitenginejam03/geom"
@@ -234,6 +233,8 @@ func (m *Missile) hitProcessCruising(targets []Target) {
 		m.State = MissileStateExploding
 		return
 	}
+	explodingHit := m.Hit
+	explodingHit.Radius = m.ExplodeRadius
 
 	var closestTarget Target
 	var closestDistance float64 = math.Inf(1)
@@ -245,7 +246,7 @@ func (m *Missile) hitProcessCruising(targets []Target) {
 		if !target.IsEnemy() {
 			continue
 		}
-		if !m.Hit.IntersectsWith(target.HitCircle()) {
+		if !explodingHit.IntersectsWith(target.HitCircle()) {
 			dist := m.Hit.Center.Distance(target.HitCircle().Center)
 			if dist < closestDistance {
 				closestDistance = dist
@@ -269,7 +270,6 @@ func (m *Missile) hitProcessCruising(targets []Target) {
 func (m *Missile) hitProcessExploding(targets []Target) {
 	explodingHit := m.Hit
 	explodingHit.Radius = m.ExplodeRadius
-	fmt.Println("MISSILE EXPLODING:", explodingHit)
 
 	for _, target := range targets {
 		if !target.IsLiving() {
