@@ -35,12 +35,13 @@ func createBuilders() map[string]builder {
 			LifetimeFrames: 180,
 		},
 		name.EquipHarakiriSystem: &harakiriSystemBuilder{
-			Interval:   180,
-			MaxCount:   6,
-			HitRadius:  32,
-			FirstSpeed: 20,
-			AccelPower: 2,
-			Power:      100,
+			Interval:       60,
+			MaxCount:       1,
+			HitRadius:      16,
+			FirstSpeed:     12,
+			Power:          300,
+			MaxSanity:      2,
+			AimingInterval: 30,
 		},
 		name.EquipBarrier: &barrierBuilder{
 			HitRadius:  64,
@@ -169,19 +170,21 @@ func (b *missileBuilder) TemplateData(improvedCount int) map[string]any {
 }
 
 type harakiriSystemBuilder struct {
-	Interval   int
-	MaxCount   int
-	HitRadius  float64
-	FirstSpeed float64
-	AccelPower float64
-	Power      int
+	Interval       int
+	MaxCount       int
+	HitRadius      float64
+	FirstSpeed     float64
+	Power          int
+	MaxSanity      int
+	AimingInterval int
 }
 
 func (b *harakiriSystemBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	eqp := shooter.Equip{
 		Name: name.EquipHarakiriSystem,
 		Updater: &shooter.EquipUpdaterHarakiriSystem{
-			Interval:  b.calcedInterval(improvedCount),
+			Interval:  b.Interval,
+			MaxSanity: b.calcedMaxSanity(improvedCount),
 			Harakiris: b.buildHarakiris(improvedCount),
 		},
 	}
@@ -190,33 +193,32 @@ func (b *harakiriSystemBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 }
 
 func (b *harakiriSystemBuilder) buildHarakiris(improvedCount int) []*shooter.HarakiriSystem {
-	maxCount := b.calcedMaxCount(improvedCount)
-	hh := make([]*shooter.HarakiriSystem, maxCount)
+	hh := make([]*shooter.HarakiriSystem, b.MaxCount)
 
-	for i := range maxCount {
+	for i := range b.MaxCount {
 		hh[i] = &shooter.HarakiriSystem{
-			Hit:        geom.Circle{Radius: b.HitRadius},
-			FirstSpeed: b.FirstSpeed,
-			AccelPower: b.AccelPower,
-			Power:      b.Power,
+			Hit:            geom.Circle{Radius: b.HitRadius},
+			FirstSpeed:     b.FirstSpeed,
+			Power:          b.calcedPower(improvedCount),
+			AimingInterval: b.AimingInterval,
 		}
 	}
 
 	return hh
 }
 
-func (b *harakiriSystemBuilder) calcedInterval(improvedCount int) int {
-	return improve(b.Interval, 0.5, improvedCount)
+func (b *harakiriSystemBuilder) calcedMaxSanity(improvedCount int) int {
+	return improve(b.MaxSanity, 1.5, improvedCount)
 }
 
-func (b *harakiriSystemBuilder) calcedMaxCount(improvedCount int) int {
-	return improve(b.MaxCount, 2, improvedCount)
+func (b *harakiriSystemBuilder) calcedPower(improvedCount int) int {
+	return improve(b.Power, 1.2, improvedCount)
 }
 
 func (b *harakiriSystemBuilder) TemplateData(improvedCount int) map[string]any {
 	return map[string]any{
-		"Interval": b.calcedInterval(improvedCount),
-		"Power":    b.Power,
+		"MaxSanity": b.calcedMaxSanity(improvedCount),
+		"Power":     b.calcedPower(improvedCount),
 	}
 }
 

@@ -342,8 +342,7 @@ type EquipUpdaterHarakiriSystem struct {
 	Interval    int
 	CurrentWait int
 	Harakiris   []*HarakiriSystem
-	Target      geom.PointF
-	HasTarget   bool
+	MaxSanity   int
 }
 
 func (u *EquipUpdaterHarakiriSystem) Update(equip *Equip) {
@@ -370,57 +369,15 @@ func (u *EquipUpdaterHarakiriSystem) Update(equip *Equip) {
 }
 
 func (u *EquipUpdaterHarakiriSystem) launchHarakiri(equip *Equip, harakiri *HarakiriSystem) {
-	accAngle := u.MyShipHit.Center.Subtract(equip.Position).Angle()
-	var velAngle float64
-	if u.HasTarget {
-		velAngle = u.Target.Subtract(equip.Position).Angle()
-	} else {
-		velAngle = accAngle * -1
-	}
-
-	harakiri.Launch(equip.Position, velAngle, accAngle)
-}
-
-func (u *EquipUpdaterHarakiriSystem) IsLiving() bool {
-	return true
-}
-
-func (u *EquipUpdaterHarakiriSystem) HitProcess(targets []Target) geom.Circle {
-	// just aiming
-	var found bool
-	var closestAngle float64 = math.Pi * 2
-	var closedTarget geom.PointF
-
-	for _, target := range targets {
-		if !target.IsLiving() {
-			continue
-		}
-		if !target.IsEnemy() {
-			continue
-		}
-
-		targetAngle := target.HitCircle().Center.Subtract(u.MyShipHit.Center).Angle()
-		equipAngle := u.Position.Subtract(u.MyShipHit.Center).Angle()
-		angleGap := math.Abs(targetAngle - equipAngle)
-		if angleGap < closestAngle {
-			closestAngle = angleGap
-			closedTarget = target.HitCircle().Center
-			found = true
-		}
-	}
-
-	u.Target = closedTarget
-	u.HasTarget = found
-
-	return geom.Circle{}
+	angle := equip.Position.Subtract(u.MyShipHit.Center).Angle()
+	harakiri.Launch(equip.Position, angle, u.MaxSanity)
 }
 
 func (u *EquipUpdaterHarakiriSystem) Bullets() []Bullet {
-	bb := make([]Bullet, len(u.Harakiris)+1)
+	bb := make([]Bullet, len(u.Harakiris))
 	for i := range u.Harakiris {
 		bb[i] = u.Harakiris[i]
 	}
-	bb[len(u.Harakiris)] = u
 	return bb
 }
 
@@ -429,7 +386,7 @@ func (u *EquipUpdaterHarakiriSystem) Targets() []Target {
 }
 
 func (u *EquipUpdaterHarakiriSystem) VisibleEntities() []VisibleEntity {
-	vv := make([]VisibleEntity, len(u.Harakiris)+1)
+	vv := make([]VisibleEntity, len(u.Harakiris))
 	for i := range u.Harakiris {
 		vv[i] = u.Harakiris[i]
 	}
@@ -437,13 +394,14 @@ func (u *EquipUpdaterHarakiriSystem) VisibleEntities() []VisibleEntity {
 }
 
 type HarakiriSystem struct {
-	Hit          geom.Circle
-	Velocity     geom.PointF
-	FirstSpeed   float64
-	Acceleration geom.PointF
-	AccelPower   float64
-	Cruising     bool
-	Power        int
+	Hit             geom.Circle
+	Velocity        geom.PointF
+	FirstSpeed      float64
+	AimingInterval  int
+	WaitToAim       int
+	RemainingSanity int
+	Cruising        bool
+	Power           int
 }
 
 func (h *HarakiriSystem) Update() {
@@ -451,15 +409,14 @@ func (h *HarakiriSystem) Update() {
 		return
 	}
 
-	h.Velocity = h.Velocity.Add(h.Acceleration)
 	h.Hit.Center = h.Hit.Center.Add(h.Velocity)
 }
 
-func (h *HarakiriSystem) Launch(start geom.PointF, valocityAngle float64, accelerationAngle float64) {
+func (h *HarakiriSystem) Launch(start geom.PointF, angle float64, sanity int) {
 	h.Cruising = true
 	h.Hit.Center = start
-	h.Velocity = geom.PointFFromPolar(h.FirstSpeed, valocityAngle)
-	h.Acceleration = geom.PointFFromPolar(h.AccelPower, accelerationAngle)
+	h.Velocity = geom.PointFFromPolar(h.FirstSpeed, angle)
+	h.RemainingSanity = sanity
 }
 
 func (h *HarakiriSystem) IsLiving() bool {
@@ -467,9 +424,27 @@ func (h *HarakiriSystem) IsLiving() bool {
 }
 
 func (h *HarakiriSystem) HitProcess(targets []Target) geom.Circle {
+	destroyed := h.hitTest(targets)
+	if destroyed {
+		return geom.Circle{}
+	}
+
+	if h.WaitToAim > 0 {
+		h.WaitToAim--
+		return geom.Circle{}
+	}
+
+	h.WaitToAim = h.AimingInterval
+	h.aim(targets)
+
+	return geom.Circle{}
+}
+
+func (h *HarakiriSystem) hitTest(targets []Target) bool {
 	canHitMyShip := h.canHitMyShip()
 
-	exploded := false
+	killed := false
+	destroyed := false
 	for _, target := range targets {
 		if !target.IsLiving() {
 			continue
@@ -481,25 +456,56 @@ func (h *HarakiriSystem) HitProcess(targets []Target) geom.Circle {
 			continue
 		}
 
+		killed = true
 		target.Damage(h.Power)
 		if !target.IsEnemy() {
-			exploded = true
+			destroyed = true
 		}
 	}
 
-	if exploded {
+	if killed && h.RemainingSanity > 0 {
+		h.RemainingSanity--
+	}
+
+	if destroyed {
 		h.Cruising = false
 	}
 
-	return geom.Circle{}
+	return destroyed
+}
+
+func (h *HarakiriSystem) aim(targets []Target) {
+	canHitMyShip := h.canHitMyShip()
+
+	var closestTarget Target
+	var closestDistance float64 = math.Inf(1)
+
+	for _, target := range targets {
+		if !target.IsLiving() {
+			continue
+		}
+		if !canHitMyShip && !target.IsEnemy() {
+			continue
+		}
+
+		dist := h.Hit.Center.Distance(target.HitCircle().Center)
+		if dist < closestDistance {
+			closestDistance = dist
+			closestTarget = target
+		}
+	}
+
+	if closestTarget == nil {
+		// There may be no enemies at all
+		return
+	}
+	vectorForTarget := closestTarget.HitCircle().Center.Subtract(h.Hit.Center)
+
+	h.Velocity = geom.PointFFromPolar(h.FirstSpeed, vectorForTarget.Angle())
 }
 
 func (h *HarakiriSystem) canHitMyShip() bool {
-	abs1 := h.Velocity.Abs()
-	abs2 := h.Velocity.Add(h.Acceleration).Abs()
-
-	// abs is increased, returning to myship
-	return abs2 > abs1
+	return h.RemainingSanity == 0
 }
 
 func (h *HarakiriSystem) Position() geom.PointF {

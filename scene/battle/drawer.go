@@ -105,10 +105,6 @@ func (d *missileDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity)
 		return
 	}
 
-	// if m, ok := entity.(*shooter.Missile); ok {
-	// fmt.Println("living missile:", *m)
-	// }
-
 	pos := entity.Position()
 
 	gm := ebiten.GeoM{}
@@ -141,10 +137,22 @@ func (d *missileDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity)
 	screen.DrawTriangles(vertices, []uint16{0, 1, 2}, drawing.WhitePixel, &topt)
 }
 
-type harakiriDrawer struct{}
+type harakiriDrawer struct {
+	StagePos geom.PointF
+	Radius   float32
+}
 
 func (d *harakiriDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity) {
+	if entity.VisibleF() == 0 {
+		return
+	}
 
+	pos := entity.Position().Add(d.StagePos)
+
+	cx := float32(pos.X)
+	cy := float32(pos.Y)
+
+	vector.DrawFilledCircle(screen, cx, cy, d.Radius, color.RGBA{R: 100, G: 200, A: 255}, true)
 }
 
 type barrierDrawer struct{}

@@ -72,8 +72,11 @@ func (s *battleGameScene) init() {
 			StagePos: s.StagePos,
 			Size:     8,
 		},
-		name.EquipHarakiriSystem: &harakiriDrawer{},
-		name.EquipBarrier:        &barrierDrawer{},
+		name.EquipHarakiriSystem: &harakiriDrawer{
+			StagePos: s.StagePos,
+			Radius:   16,
+		},
+		name.EquipBarrier: &barrierDrawer{},
 	}
 }
 
