@@ -49,10 +49,10 @@ func createBuilders() map[string]builder {
 			Interval:   240,
 		},
 		name.EquipArmorPlate: &armorPlatebuilder{
-			AdditinalArmor: 100,
+			AdditinalArmor: 2000,
 		},
 		name.EquipThermalExhaustPort: &exhaustPortbuilder{
-			HitRadius:  32,
+			HitRadius:  8,
 			Multiplier: 10,
 		},
 		name.EquipStonehenge: &uselessBuilder{
