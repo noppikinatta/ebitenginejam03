@@ -133,6 +133,7 @@ func (s *battleGameScene) createVisibleEntities() []shooter.VisibleEntity {
 
 func (s *battleGameScene) Draw(screen *ebiten.Image) {
 	s.drawBackground(screen)
+	s.drawShipHP(screen)
 	s.drawMyShip(screen)
 	s.drawVisibleEntities(screen)
 	s.drawEnemies(screen)
@@ -190,6 +191,10 @@ func (s *battleGameScene) drawBackground(screen *ebiten.Image) {
 	}
 
 	s.drawRect(screen, topLeft, bottomRight, v)
+}
+
+func (s *battleGameScene) drawShipHP(screen *ebiten.Image) {
+	drawing.DrawText(screen, fmt.Sprint(s.Stage.MyShip.HP), 18, &ebiten.DrawImageOptions{})
 }
 
 func (s *battleGameScene) drawMyShip(screen *ebiten.Image) {
