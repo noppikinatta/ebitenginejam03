@@ -66,7 +66,10 @@ func (s *battleGameScene) init() {
 			LaserLength: (s.Stage.Size.X*0.5 - s.Stage.MyShip.Hit.Radius) * 2,
 			Width:       24,
 		},
-		name.EquipSpaceMissile:   &missileDrawer{},
+		name.EquipSpaceMissile: &missileDrawer{
+			StagePos: s.StagePos,
+			Size:     8,
+		},
 		name.EquipHarakiriSystem: &harakiriDrawer{},
 		name.EquipBarrier:        &barrierDrawer{},
 	}
