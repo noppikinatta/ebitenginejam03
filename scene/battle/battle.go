@@ -76,7 +76,10 @@ func (s *battleGameScene) init() {
 			StagePos: s.StagePos,
 			Radius:   16,
 		},
-		name.EquipBarrier: &barrierDrawer{},
+		name.EquipBarrier: &barrierDrawer{
+			StagePos: s.StagePos,
+			Radius:   48,
+		},
 	}
 }
 

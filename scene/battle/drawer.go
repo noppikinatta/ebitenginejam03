@@ -155,10 +155,39 @@ func (d *harakiriDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity
 	vector.DrawFilledCircle(screen, cx, cy, d.Radius, color.RGBA{R: 100, G: 200, A: 255}, true)
 }
 
-type barrierDrawer struct{}
+type barrierDrawer struct {
+	StagePos geom.PointF
+	Radius   float32
+}
 
 func (d *barrierDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity) {
+	if entity.VisibleF() == 0 {
+		return
+	}
 
+	pos := entity.Position().Add(d.StagePos)
+
+	cx := float32(pos.X)
+	cy := float32(pos.Y)
+
+	var r, g, b, a uint8 = 128, 128, 255, 255
+
+	redModifier := 1 - entity.VisibleF()
+	r = uint8(120*redModifier) + r
+
+	b = uint8(float64(b) * entity.VisibleF())
+
+	fillAlpha := entity.VisibleF() * 0.5
+
+	f := func(v uint8) uint8 {
+		return uint8(float64(v) * fillAlpha)
+	}
+
+	edgeColor := color.RGBA{R: r, G: g, B: b, A: a}
+	fillColor := color.RGBA{R: f(r), G: f(g), B: f(b), A: f(a)}
+
+	vector.DrawFilledCircle(screen, cx, cy, d.Radius, fillColor, true)
+	vector.StrokeCircle(screen, cx, cy, d.Radius, 2, edgeColor, true)
 }
 
 type explosionDrawer struct {
