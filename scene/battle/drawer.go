@@ -230,7 +230,7 @@ func (e *explosion) Update() {
 		return
 	}
 
-	e.Alpha -= (0.4 / e.At.Radius)
+	e.Alpha -= 0.01
 	if e.Alpha < 0 {
 		e.Alpha = 0
 	}
