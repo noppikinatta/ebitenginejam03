@@ -247,8 +247,7 @@ func (m *Missile) HitProcess(targets []Target) {
 	}
 
 	vectorForTarget := closestTarget.HitCircle().Center.Subtract(m.Hit.Center)
-	targetAngle := math.Atan2(vectorForTarget.X, vectorForTarget.Y)
-	m.Acceleration = geom.PointFFromPolar(m.AccelPower, targetAngle)
+	m.Acceleration = geom.PointFFromPolar(m.AccelPower, vectorForTarget.Angle())
 }
 
 func (m *Missile) HitCircle() geom.Circle {
