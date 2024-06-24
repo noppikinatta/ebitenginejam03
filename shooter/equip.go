@@ -463,6 +463,10 @@ func (h *HarakiriSystem) hitTest(targets []Target) bool {
 		}
 	}
 
+	if killed {
+		h.Velocity = geom.PointF{}
+	}
+
 	if killed && h.RemainingSanity > 0 {
 		h.RemainingSanity--
 	}
