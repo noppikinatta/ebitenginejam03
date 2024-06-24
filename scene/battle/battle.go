@@ -84,7 +84,7 @@ func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
 		ee[i] = &shooter.Enemy{
 			HP:               100,
 			State:            shooter.StateReady,
-			Hit:              geom.Circle{Radius: 32},
+			Hit:              geom.Circle{Radius: 8},
 			ShootingInterval: 180,
 			Bullets:          s.createBullets(),
 			Rnd:              rand.New(random.Source()),
@@ -93,8 +93,8 @@ func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
 
 	return &shooter.EnemyLauncher{
 		Enemies:   ee,
-		Speed:     1,
-		FirstWait: 180,
+		Speed:     0.5,
+		FirstWait: 60,
 		Rnd:       rand.New(random.Source()),
 		StageSize: s.Stage.Size,
 		Interval:  60,
