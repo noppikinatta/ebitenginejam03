@@ -44,7 +44,7 @@ func (m *MyShip) IsEnemy() bool {
 
 func (m *MyShip) Damage(value int) float64 {
 	m.HP -= value
-	return 0
+	return float64(value)
 }
 
 func (m *MyShip) IsLiving() bool {
@@ -59,12 +59,11 @@ func (m *MyShip) Bullets() []Bullet {
 	return bb
 }
 
-func (m *MyShip) Targets() []Target {
+func (m *MyShip) EquipTargets() []Target {
 	tt := make([]Target, 0)
 	for _, e := range m.Equips {
 		tt = append(tt, e.Updater.Targets()...)
 	}
-	tt = append(tt, m)
 	return tt
 }
 

@@ -135,7 +135,7 @@ func (s *battleGameScene) createHitTest() *shooter.HitTest {
 	bb := s.Stage.EnemyLauncher.Bullets()
 	tt := s.Stage.EnemyLauncher.Targets()
 	bb = append(bb, s.Stage.MyShip.Bullets()...)
-	tt = append(tt, s.Stage.MyShip.Targets()...)
+	tt = append(tt, s.Stage.MyShip.EquipTargets()...)
 
 	exDrawer := explosionDrawer{
 		StagePos: s.StagePos,
@@ -151,6 +151,8 @@ func (s *battleGameScene) createHitTest() *shooter.HitTest {
 		t := &explosionTarget{target: tt[i], Drawer: &exDrawer}
 		tt[i] = t
 	}
+
+	tt = append(tt, s.Stage.MyShip)
 
 	s.explosionDrawer = &exDrawer
 
