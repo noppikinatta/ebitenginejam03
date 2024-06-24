@@ -92,7 +92,7 @@ func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
 	for i := range len(ee) {
 		ee[i] = &shooter.Enemy{
 			HP:               100,
-			State:            shooter.StateReady,
+			State:            shooter.EnemyStateReady,
 			Hit:              geom.Circle{Radius: 8},
 			ShootingInterval: 180,
 			Bullets:          s.createBullets(),
@@ -117,7 +117,6 @@ func (s *battleGameScene) createBullets() []*shooter.EnemyBullet {
 		bb[i] = &shooter.EnemyBullet{
 			Power: 10,
 			Hit:   geom.Circle{Radius: 1},
-			State: shooter.StateReady,
 		}
 	}
 
@@ -267,7 +266,7 @@ func (s *battleGameScene) drawEnemies(screen *ebiten.Image) {
 }
 
 func (s *battleGameScene) drawEnemy(screen *ebiten.Image, e *shooter.Enemy) {
-	if e.State == shooter.StateOnStage {
+	if e.State == shooter.EnemyStateOnStage {
 		circle := e.Hit
 		circle.Center = circle.Center.Add(s.StagePos)
 
@@ -284,7 +283,7 @@ func (s *battleGameScene) drawEnemy(screen *ebiten.Image, e *shooter.Enemy) {
 }
 
 func (s *battleGameScene) drawEnemyBullet(screen *ebiten.Image, b *shooter.EnemyBullet) {
-	if b.State != shooter.StateOnStage {
+	if !b.Cruising {
 		return
 	}
 

@@ -34,8 +34,8 @@ func (l *EnemyLauncher) Update() {
 func (l *EnemyLauncher) launch() {
 	enemyRemaining := false
 	for _, e := range l.Enemies {
-		if e.State != StateReady {
-			if e.State == StateOnStage {
+		if e.State != EnemyStateReady {
+			if e.State == EnemyStateOnStage {
 				enemyRemaining = true
 			}
 			continue
@@ -99,7 +99,7 @@ func (l *EnemyLauncher) Targets() []Target {
 
 type Enemy struct {
 	HP               int
-	State            State
+	State            EnemyState
 	Hit              geom.Circle
 	Velocity         geom.PointF
 	ShootingInterval int
@@ -109,7 +109,7 @@ type Enemy struct {
 }
 
 func (e *Enemy) Launch(start, velocity geom.PointF, firstWait int) {
-	e.State = StateOnStage
+	e.State = EnemyStateOnStage
 	e.Hit.Center = start
 	e.Velocity = velocity
 	e.CurrentWait = firstWait
@@ -120,12 +120,12 @@ func (e *Enemy) Update() {
 		b.Update()
 	}
 
-	if e.State != StateOnStage {
+	if e.State != EnemyStateOnStage {
 		return
 	}
 
 	if e.HP <= 0 {
-		e.State = StateDead
+		e.State = EnemyStateDead
 		return
 	}
 
@@ -177,23 +177,31 @@ func (e *Enemy) IsEnemy() bool {
 func (e *Enemy) Damage(value int) {
 	e.HP -= value
 	if e.HP <= 0 {
-		e.State = StateDead
+		e.State = EnemyStateDead
 	}
 }
 
 func (e *Enemy) IsLiving() bool {
-	return e.State == StateOnStage
+	return e.State == EnemyStateOnStage
 }
+
+type EnemyState int
+
+const (
+	EnemyStateReady EnemyState = iota
+	EnemyStateOnStage
+	EnemyStateDead
+)
 
 type EnemyBullet struct {
 	Power    int
 	Hit      geom.Circle
 	Velocity geom.PointF
-	State    State
+	Cruising bool
 }
 
 func (b *EnemyBullet) Shoot(start, velocity geom.PointF) {
-	b.State = StateOnStage
+	b.Cruising = true
 	b.Hit.Center = start
 	b.Velocity = velocity
 }
@@ -206,7 +214,7 @@ func (b *EnemyBullet) Update() {
 }
 
 func (b *EnemyBullet) IsLiving() bool {
-	return b.State == StateOnStage
+	return b.Cruising
 }
 
 func (b *EnemyBullet) HitProcess(targets []Target) {
@@ -223,7 +231,7 @@ func (b *EnemyBullet) HitProcess(targets []Target) {
 		}
 
 		t.Damage(b.Power)
-		b.State = StateReady
+		b.Cruising = false
 		break
 	}
 }

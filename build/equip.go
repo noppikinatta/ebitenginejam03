@@ -25,12 +25,13 @@ func createBuilders() map[string]builder {
 			Power:      10,
 		},
 		name.EquipSpaceMissile: &missileBuilder{
-			Interval:   60,
-			MaxCount:   6,
-			HitRadius:  32,
-			FirstSpeed: 0.5,
-			AccelPower: 0.125,
-			Power:      50,
+			Interval:      60,
+			MaxCount:      6,
+			HitRadius:     4,
+			ExplodeRadius: 32,
+			FirstSpeed:    0.5,
+			AccelPower:    0.125,
+			Power:         50,
 		},
 		name.EquipHarakiriSystem: &harakiriSystemBuilder{
 			Interval:   180,
@@ -53,13 +54,16 @@ func createBuilders() map[string]builder {
 			Multiplier: 10,
 		},
 		name.EquipStonehenge: &uselessBuilder{
-			Name: name.EquipStonehenge,
+			Name:  name.EquipStonehenge,
+			Value: 30,
 		},
 		name.EquipSushiBar: &uselessBuilder{
-			Name: name.EquipSushiBar,
+			Name:  name.EquipSushiBar,
+			Value: 150,
 		},
 		name.EquipOperaHouse: &uselessBuilder{
-			Name: name.EquipOperaHouse,
+			Name:  name.EquipOperaHouse,
+			Value: 1507,
 		},
 	}
 }
@@ -108,12 +112,13 @@ func (b *laserBuilder) TemplateData(improvedCount int) map[string]any {
 }
 
 type missileBuilder struct {
-	Interval   int
-	MaxCount   int
-	HitRadius  float64
-	FirstSpeed float64
-	AccelPower float64
-	Power      int
+	Interval      int
+	MaxCount      int
+	HitRadius     float64
+	ExplodeRadius float64
+	FirstSpeed    float64
+	AccelPower    float64
+	Power         int
 }
 
 func (b *missileBuilder) Build(ship *shooter.MyShip, improvedCount int) {
@@ -133,11 +138,12 @@ func (b *missileBuilder) buildMissiles(improvedCount int) []*shooter.Missile {
 
 	for i := range b.MaxCount {
 		mm[i] = &shooter.Missile{
-			Hit:        geom.Circle{Radius: b.HitRadius},
-			FirstSpeed: b.FirstSpeed,
-			AccelPower: b.AccelPower,
-			State:      shooter.StateReady,
-			Power:      b.calcedPower(improvedCount),
+			Hit:           geom.Circle{Radius: b.HitRadius},
+			FirstSpeed:    b.FirstSpeed,
+			AccelPower:    b.AccelPower,
+			State:         shooter.MissileStateReady,
+			Power:         b.calcedPower(improvedCount),
+			ExplodeRadius: b.ExplodeRadius,
 		}
 	}
 
@@ -292,7 +298,8 @@ func (b *exhaustPortbuilder) TemplateData(improvedCount int) map[string]any {
 }
 
 type uselessBuilder struct {
-	Name string
+	Name  string
+	Value int
 }
 
 func (b *uselessBuilder) Build(ship *shooter.MyShip, improvedCount int) {
@@ -304,8 +311,14 @@ func (b *uselessBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	ship.Equips = append(ship.Equips, &eqp)
 }
 
+func (b *uselessBuilder) calcedValue(improvedCount int) int {
+	return improve(b.Value, 1.2, improvedCount)
+}
+
 func (b *uselessBuilder) TemplateData(improvedCount int) map[string]any {
-	return map[string]any{}
+	return map[string]any{
+		"Value": b.calcedValue(improvedCount),
+	}
 }
 
 func improve[T int | float64](baseValue T, rate float64, count int) T {

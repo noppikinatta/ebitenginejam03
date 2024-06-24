@@ -144,7 +144,7 @@ func (u *EquipUpdaterMissile) Update(equip *Equip) {
 
 	u.CurrentWait = u.Interval
 	for _, m := range u.Missiles {
-		if m.State == StateOnStage {
+		if m.State == MissileStateCruising {
 			continue
 		}
 
@@ -182,13 +182,14 @@ func (u *EquipUpdaterMissile) VisibleEntities() []VisibleEntity {
 }
 
 type Missile struct {
-	Hit          geom.Circle
-	Velocity     geom.PointF
-	FirstSpeed   float64
-	Acceleration geom.PointF
-	AccelPower   float64
-	State        State
-	Power        int
+	Hit           geom.Circle
+	Velocity      geom.PointF
+	FirstSpeed    float64
+	Acceleration  geom.PointF
+	AccelPower    float64
+	State         MissileState
+	Power         int
+	ExplodeRadius float64
 }
 
 func (m *Missile) Update() {
@@ -201,17 +202,26 @@ func (m *Missile) Update() {
 }
 
 func (m *Missile) Launch(start, velocity geom.PointF) {
-	m.State = StateOnStage
+	m.State = MissileStateCruising
 	m.Acceleration = geom.PointF{}
 	m.Hit.Center = start
 	m.Velocity = velocity
 }
 
 func (m *Missile) IsLiving() bool {
-	return m.State == StateOnStage
+	return m.State == MissileStateCruising
 }
 
 func (m *Missile) HitProcess(targets []Target) {
+	switch m.State {
+	case MissileStateCruising:
+		m.hitProcessCruising(targets)
+	case MissileStateExploding:
+		m.hitProcessExploding(targets)
+	}
+}
+
+func (m *Missile) hitProcessCruising(targets []Target) {
 	exploded := false
 	var closestTarget Target
 	var closestDistance float64 = math.Inf(1)
@@ -232,12 +242,11 @@ func (m *Missile) HitProcess(targets []Target) {
 			continue
 		}
 
-		target.Damage(m.Power)
 		exploded = true
 	}
 
 	if exploded {
-		m.State = StateReady
+		m.State = MissileStateExploding
 		return
 	}
 
@@ -245,9 +254,29 @@ func (m *Missile) HitProcess(targets []Target) {
 		// There may be no enemies at all
 		return
 	}
-
 	vectorForTarget := closestTarget.HitCircle().Center.Subtract(m.Hit.Center)
 	m.Acceleration = geom.PointFFromPolar(m.AccelPower, vectorForTarget.Angle())
+}
+
+func (m *Missile) hitProcessExploding(targets []Target) {
+	explodingHit := m.Hit
+	explodingHit.Radius = m.ExplodeRadius
+
+	for _, target := range targets {
+		if !target.IsLiving() {
+			continue
+		}
+		if !target.IsEnemy() {
+			continue
+		}
+		if !explodingHit.IntersectsWith(target.HitCircle()) {
+			continue
+		}
+
+		target.Damage(m.Power)
+	}
+
+	m.State = MissileStateReady
 }
 
 func (m *Missile) HitCircle() geom.Circle {
@@ -259,7 +288,9 @@ func (m *Missile) IsEnemy() bool {
 }
 
 func (m *Missile) Damage(value int) {
-	m.State = StateReady
+	if m.State == MissileStateCruising {
+		m.State = MissileStateExploding
+	}
 }
 
 func (m *Missile) Position() geom.PointF {
@@ -271,7 +302,7 @@ func (m *Missile) Angle() float64 {
 }
 
 func (m *Missile) VisibleF() float64 {
-	if m.State == StateOnStage {
+	if m.State == MissileStateCruising {
 		return 1
 	}
 	return 0
@@ -280,6 +311,14 @@ func (m *Missile) VisibleF() float64 {
 func (m *Missile) Name() string {
 	return name.EquipSpaceMissile
 }
+
+type MissileState int
+
+const (
+	MissileStateReady MissileState = iota
+	MissileStateCruising
+	MissileStateExploding
+)
 
 type EquipUpdaterHarakiriSystem struct {
 	MyShipHit   geom.Circle
@@ -305,7 +344,7 @@ func (u *EquipUpdaterHarakiriSystem) Update(equip *Equip) {
 
 	u.CurrentWait = u.Interval
 	for _, h := range u.Harakiris {
-		if h.State == StateOnStage {
+		if h.Cruising {
 			continue
 		}
 
@@ -385,7 +424,7 @@ type HarakiriSystem struct {
 	FirstSpeed   float64
 	Acceleration geom.PointF
 	AccelPower   float64
-	State        State
+	Cruising     bool
 	Power        int
 }
 
@@ -399,14 +438,14 @@ func (h *HarakiriSystem) Update() {
 }
 
 func (h *HarakiriSystem) Launch(start geom.PointF, valocityAngle float64, accelerationAngle float64) {
-	h.State = StateOnStage
+	h.Cruising = true
 	h.Hit.Center = start
 	h.Velocity = geom.PointFFromPolar(h.FirstSpeed, valocityAngle)
 	h.Acceleration = geom.PointFFromPolar(h.AccelPower, accelerationAngle)
 }
 
 func (h *HarakiriSystem) IsLiving() bool {
-	return h.State == StateOnStage
+	return h.Cruising
 }
 
 func (h *HarakiriSystem) HitProcess(targets []Target) {
@@ -431,7 +470,7 @@ func (h *HarakiriSystem) HitProcess(targets []Target) {
 	}
 
 	if exploded {
-		h.State = StateReady
+		h.Cruising = false
 	}
 }
 
@@ -452,7 +491,7 @@ func (h *HarakiriSystem) Angle() float64 {
 }
 
 func (h *HarakiriSystem) VisibleF() float64 {
-	if h.State == StateOnStage {
+	if h.Cruising {
 		return 1
 	}
 	return 0
