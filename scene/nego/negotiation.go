@@ -120,7 +120,12 @@ func (s *negotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
 		opt.ColorScale.Scale(1, 0.5, 0, 1)
 		opt.GeoM.Translate(topLeft.X, y)
 
-		drawing.DrawText(screen, e.Name, 12, &opt)
+		name := e.Name
+		if e.ImprovedCount > 0 {
+			name += fmt.Sprintf("+%d", e.ImprovedCount)
+		}
+
+		drawing.DrawText(screen, name, 12, &opt)
 	}
 }
 
@@ -313,6 +318,10 @@ func (s *negotiationGameScene) End() bool {
 
 func (s *negotiationGameScene) Reset() {
 	s.Negotiation.Reset(10000)
+}
+
+func (s *negotiationGameScene) Result() []*nego.Equip {
+	return s.Negotiation.ApprovedEquips
 }
 
 func createVendors() []*nego.Vendor {
