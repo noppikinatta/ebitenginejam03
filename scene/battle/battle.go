@@ -36,12 +36,6 @@ func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
 		orderer:  orderer,
 		Stage:    &s,
 		StagePos: geom.PointF{X: 0, Y: 40},
-		EntityDrawers: map[string]visibleEntityDrawer{
-			name.EquipLaserCannon:    &laserDrawer{},
-			name.EquipSpaceMissile:   &missileDrawer{},
-			name.EquipHarakiriSystem: &harakiriDrawer{},
-			name.EquipBarrier:        &barrierDrawer{},
-		},
 	}
 }
 
@@ -65,6 +59,17 @@ func (s *battleGameScene) init() {
 	s.Stage.EnemyLauncher = s.createEnemies()
 	s.Stage.HitTest = s.createHitTest()
 	s.VisibleEntities = s.createVisibleEntities()
+	s.EntityDrawers = map[string]visibleEntityDrawer{
+		name.EquipLaserCannon: &laserDrawer{
+			ShipHit:     s.Stage.MyShip.Hit,
+			StagePos:    s.StagePos,
+			LaserLength: (s.Stage.Size.X*0.5 - s.Stage.MyShip.Hit.Radius) * 2,
+			Width:       24,
+		},
+		name.EquipSpaceMissile:   &missileDrawer{},
+		name.EquipHarakiriSystem: &harakiriDrawer{},
+		name.EquipBarrier:        &barrierDrawer{},
+	}
 }
 
 func (s *battleGameScene) buildMyShip(orders []*nego.Equip) *shooter.MyShip {
