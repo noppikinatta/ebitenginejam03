@@ -1,6 +1,7 @@
 package shooter
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/noppikinatta/ebitenginejam03/geom"
@@ -182,19 +183,25 @@ func (u *EquipUpdaterMissile) VisibleEntities() []VisibleEntity {
 }
 
 type Missile struct {
-	Hit           geom.Circle
-	Velocity      geom.PointF
-	FirstSpeed    float64
-	Acceleration  geom.PointF
-	AccelPower    float64
-	State         MissileState
-	Power         int
-	ExplodeRadius float64
+	Hit            geom.Circle
+	Velocity       geom.PointF
+	FirstSpeed     float64
+	Acceleration   geom.PointF
+	AccelPower     float64
+	State          MissileState
+	Power          int
+	ExplodeRadius  float64
+	LifetimeFrames int
+	RemainingLife  int
 }
 
 func (m *Missile) Update() {
 	if !m.IsLiving() {
 		return
+	}
+
+	if m.RemainingLife > 0 {
+		m.RemainingLife--
 	}
 
 	m.Velocity = m.Velocity.Add(m.Acceleration)
@@ -206,10 +213,11 @@ func (m *Missile) Launch(start, velocity geom.PointF) {
 	m.Acceleration = geom.PointF{}
 	m.Hit.Center = start
 	m.Velocity = velocity
+	m.RemainingLife = m.LifetimeFrames
 }
 
 func (m *Missile) IsLiving() bool {
-	return m.State == MissileStateCruising
+	return m.State != MissileStateReady
 }
 
 func (m *Missile) HitProcess(targets []Target) {
@@ -222,7 +230,11 @@ func (m *Missile) HitProcess(targets []Target) {
 }
 
 func (m *Missile) hitProcessCruising(targets []Target) {
-	exploded := false
+	if m.RemainingLife <= 0 {
+		m.State = MissileStateExploding
+		return
+	}
+
 	var closestTarget Target
 	var closestDistance float64 = math.Inf(1)
 
@@ -242,10 +254,6 @@ func (m *Missile) hitProcessCruising(targets []Target) {
 			continue
 		}
 
-		exploded = true
-	}
-
-	if exploded {
 		m.State = MissileStateExploding
 		return
 	}
@@ -261,6 +269,7 @@ func (m *Missile) hitProcessCruising(targets []Target) {
 func (m *Missile) hitProcessExploding(targets []Target) {
 	explodingHit := m.Hit
 	explodingHit.Radius = m.ExplodeRadius
+	fmt.Println("MISSILE EXPLODING:", explodingHit)
 
 	for _, target := range targets {
 		if !target.IsLiving() {
@@ -288,9 +297,9 @@ func (m *Missile) IsEnemy() bool {
 }
 
 func (m *Missile) Damage(value int) {
-	if m.State == MissileStateCruising {
-		m.State = MissileStateExploding
-	}
+	// if m.State == MissileStateCruising {
+	// m.State = MissileStateExploding
+	// }
 }
 
 func (m *Missile) Position() geom.PointF {

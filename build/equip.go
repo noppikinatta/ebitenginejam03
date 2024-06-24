@@ -25,13 +25,14 @@ func createBuilders() map[string]builder {
 			Power:      10,
 		},
 		name.EquipSpaceMissile: &missileBuilder{
-			Interval:      60,
-			MaxCount:      6,
-			HitRadius:     4,
-			ExplodeRadius: 32,
-			FirstSpeed:    0.5,
-			AccelPower:    0.125,
-			Power:         50,
+			Interval:       90,
+			MaxCount:       6,
+			HitRadius:      8,
+			ExplodeRadius:  32,
+			FirstSpeed:     0.5,
+			AccelPower:     0.125,
+			Power:          50,
+			LifetimeFrames: 180,
 		},
 		name.EquipHarakiriSystem: &harakiriSystemBuilder{
 			Interval:   180,
@@ -112,13 +113,14 @@ func (b *laserBuilder) TemplateData(improvedCount int) map[string]any {
 }
 
 type missileBuilder struct {
-	Interval      int
-	MaxCount      int
-	HitRadius     float64
-	ExplodeRadius float64
-	FirstSpeed    float64
-	AccelPower    float64
-	Power         int
+	Interval       int
+	MaxCount       int
+	HitRadius      float64
+	ExplodeRadius  float64
+	FirstSpeed     float64
+	AccelPower     float64
+	Power          int
+	LifetimeFrames int
 }
 
 func (b *missileBuilder) Build(ship *shooter.MyShip, improvedCount int) {
@@ -138,12 +140,13 @@ func (b *missileBuilder) buildMissiles(improvedCount int) []*shooter.Missile {
 
 	for i := range b.MaxCount {
 		mm[i] = &shooter.Missile{
-			Hit:           geom.Circle{Radius: b.HitRadius},
-			FirstSpeed:    b.FirstSpeed,
-			AccelPower:    b.AccelPower,
-			State:         shooter.MissileStateReady,
-			Power:         b.calcedPower(improvedCount),
-			ExplodeRadius: b.ExplodeRadius,
+			Hit:            geom.Circle{Radius: b.HitRadius},
+			FirstSpeed:     b.FirstSpeed,
+			AccelPower:     b.AccelPower,
+			State:          shooter.MissileStateReady,
+			Power:          b.calcedPower(improvedCount),
+			ExplodeRadius:  b.ExplodeRadius,
+			LifetimeFrames: b.LifetimeFrames,
 		}
 	}
 
