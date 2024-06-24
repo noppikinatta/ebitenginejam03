@@ -25,11 +25,11 @@ func createBuilders() map[string]builder {
 			Power:      10,
 		},
 		name.EquipSpaceMissile: &missileBuilder{
-			Interval:   300,
+			Interval:   60,
 			MaxCount:   6,
 			HitRadius:  32,
-			FirstSpeed: 10,
-			AccelPower: 2,
+			FirstSpeed: 0.5,
+			AccelPower: 0.125,
 			Power:      50,
 		},
 		name.EquipHarakiriSystem: &harakiriSystemBuilder{
