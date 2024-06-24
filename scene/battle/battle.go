@@ -3,6 +3,7 @@ package battle
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -230,6 +231,11 @@ func (s *battleGameScene) drawEquip(screen *ebiten.Image, equip *shooter.Equip) 
 	bottomRight = bottomRight.Add(s.StagePos)
 
 	s.drawRect(screen, topLeft, bottomRight, v)
+
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(topLeft.X, topLeft.Y)
+
+	drawing.DrawText(screen, fmt.Sprint(equip.Name, int(equip.Angle/math.Pi*180)), 12, &opt)
 }
 
 func (s *battleGameScene) drawVisibleEntities(screen *ebiten.Image) {
@@ -258,6 +264,10 @@ func (s *battleGameScene) drawEnemy(screen *ebiten.Image, e *shooter.Enemy) {
 		circle.Center = circle.Center.Add(s.StagePos)
 
 		s.drawCircle(screen, circle, color.RGBA{R: 200, A: 255}, color.RGBA{R: 225, A: 255})
+
+		opt := ebiten.DrawImageOptions{}
+		opt.GeoM.Translate(circle.Center.X, circle.Center.Y)
+		drawing.DrawText(screen, fmt.Sprint(e.HP), 12, &opt)
 	}
 
 	for _, b := range e.Bullets {
