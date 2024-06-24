@@ -84,9 +84,16 @@ func (u *EquipUpdaterLaser) HitProcess(targets []Target) {
 		}
 
 		distance := line.Distance(target.HitCircle().Center)
-		if distance > u.Width {
-			return
+		if distance > (u.Width + target.HitCircle().Radius) {
+			continue
 		}
+
+		v1 := u.Pos.Subtract(u.ShipHit.Center)
+		v2 := target.HitCircle().Center.Subtract(u.ShipHit.Center)
+		if v1.InnerProduct(v2) < 0 {
+			continue
+		}
+
 		target.Damage(u.Power)
 	}
 }
