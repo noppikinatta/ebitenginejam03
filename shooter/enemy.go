@@ -236,7 +236,7 @@ func (b *EnemyBullet) HitProcess(targets []Target) geom.Circle {
 		b.Cruising = false
 
 		if r > 0 {
-			return geom.Circle{Center: b.Hit.Center, Radius: math.Sqrt(r) * 0.5}
+			return geom.Circle{Center: b.Hit.Center, Radius: float64(b.Power)}
 		} else {
 			break
 		}

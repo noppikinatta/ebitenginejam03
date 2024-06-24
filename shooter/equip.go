@@ -632,7 +632,7 @@ func (u *EquipUpdaterExhaust) IsEnemy() bool {
 }
 
 func (u *EquipUpdaterExhaust) Damage(value int) float64 {
-	return u.Myship.Damage(int(float64(value) * u.Multiplier))
+	return u.Myship.Damage(int(float64(value)*u.Multiplier)) * 0.5
 }
 
 func (u *EquipUpdaterExhaust) IsLiving() bool {
