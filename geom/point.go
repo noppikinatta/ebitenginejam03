@@ -41,6 +41,10 @@ func (p PointF) Distance(other PointF) float64 {
 	return math.Sqrt(dx*dx + dy*dy)
 }
 
+func (p PointF) InnerProduct(other PointF) float64 {
+	return p.X*other.X + p.Y*other.Y
+}
+
 func PointFFromPolar(abs float64, angleRad float64) PointF {
 	x := abs * math.Cos(angleRad)
 	y := abs * math.Sin(angleRad)
