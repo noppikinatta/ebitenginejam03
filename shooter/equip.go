@@ -296,10 +296,15 @@ func (m *Missile) IsEnemy() bool {
 	return false
 }
 
-func (m *Missile) Damage(value int) {
-	// if m.State == MissileStateCruising {
-	// m.State = MissileStateExploding
-	// }
+func (m *Missile) Damage(value int) float64 {
+	if m.State == MissileStateCruising {
+		m.State = MissileStateExploding
+	}
+
+	if m.State == MissileStateExploding {
+		return m.ExplodeRadius
+	}
+	return 0
 }
 
 func (m *Missile) Position() geom.PointF {
@@ -551,11 +556,13 @@ func (u *EquipUpdaterBarrier) IsEnemy() bool {
 	return false
 }
 
-func (u *EquipUpdaterBarrier) Damage(value int) {
+func (u *EquipUpdaterBarrier) Damage(value int) float64 {
 	u.CurrentDurability--
 	if u.CurrentDurability <= 0 {
 		u.CurrentWait = u.Interval
 	}
+
+	return 0
 }
 
 func (u *EquipUpdaterBarrier) IsLiving() bool {
@@ -608,8 +615,8 @@ func (u *EquipUpdaterExhaust) IsEnemy() bool {
 	return false
 }
 
-func (u *EquipUpdaterExhaust) Damage(value int) {
-	u.Myship.Damage(int(float64(value) * u.Multiplier))
+func (u *EquipUpdaterExhaust) Damage(value int) float64 {
+	return u.Myship.Damage(int(float64(value) * u.Multiplier))
 }
 
 func (u *EquipUpdaterExhaust) IsLiving() bool {

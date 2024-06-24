@@ -10,7 +10,7 @@ type Bullet interface {
 type Target interface {
 	HitCircle() geom.Circle
 	IsEnemy() bool
-	Damage(value int)
+	Damage(value int) float64
 	IsLiving() bool
 }
 

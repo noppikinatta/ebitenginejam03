@@ -174,11 +174,13 @@ func (e *Enemy) IsEnemy() bool {
 	return true
 }
 
-func (e *Enemy) Damage(value int) {
+func (e *Enemy) Damage(value int) float64 {
 	e.HP -= value
 	if e.HP <= 0 {
 		e.State = EnemyStateDead
+		return e.Hit.Radius * 1.5
 	}
+	return 0
 }
 
 func (e *Enemy) IsLiving() bool {
