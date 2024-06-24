@@ -73,18 +73,6 @@ func (d *laserDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity) {
 
 	opt := ebiten.DrawTrianglesOptions{}
 	screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &opt)
-
-	centre := d.ShipHit.Center
-	centre = centre.Add(d.StagePos)
-	posTest := entity.Position()
-	posTest = posTest.Add(d.StagePos)
-	line := geom.LinearFuncFromPt(centre, posTest)
-	x, ok := line.X(0)
-	if ok {
-		vector.StrokeLine(screen, float32(posTest.X), float32(posTest.Y), float32(x), 0, 2, color.RGBA{R: 255, A: 128}, false)
-	}
-
-	vector.StrokeCircle(screen, float32(posTest.X), float32(posTest.Y), 4, 1, color.RGBA{R: 255, A: 128}, false)
 }
 
 func (d *laserDrawer) alpha(entity shooter.VisibleEntity) float32 {
