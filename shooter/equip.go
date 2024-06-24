@@ -426,7 +426,7 @@ func (h *HarakiriSystem) IsLiving() bool {
 func (h *HarakiriSystem) HitProcess(targets []Target) geom.Circle {
 	destroyed := h.hitTest(targets)
 	if destroyed {
-		return geom.Circle{}
+		return geom.Circle{Center: h.Hit.Center, Radius: float64(h.Power)}
 	}
 
 	if h.WaitToAim > 0 {
@@ -488,8 +488,15 @@ func (h *HarakiriSystem) aim(targets []Target) {
 		if !target.IsLiving() {
 			continue
 		}
-		if !canHitMyShip && !target.IsEnemy() {
-			continue
+
+		if canHitMyShip {
+			if target.IsEnemy() {
+				continue
+			}
+		} else {
+			if !target.IsEnemy() {
+				continue
+			}
 		}
 
 		dist := h.Hit.Center.Distance(target.HitCircle().Center)

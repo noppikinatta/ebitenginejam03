@@ -38,9 +38,9 @@ func createBuilders() map[string]builder {
 			Interval:       60,
 			MaxCount:       1,
 			HitRadius:      16,
-			FirstSpeed:     6,
-			Power:          200,
-			MaxSanity:      2,
+			FirstSpeed:     12,
+			Power:          100,
+			MaxSanity:      3,
 			AimingInterval: 120,
 		},
 		name.EquipBarrier: &barrierBuilder{
