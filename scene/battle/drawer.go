@@ -95,10 +95,50 @@ func (d *laserDrawer) alpha(entity shooter.VisibleEntity) float32 {
 	return float32(entity.VisibleF() * 5)
 }
 
-type missileDrawer struct{}
+type missileDrawer struct {
+	StagePos geom.PointF
+	Size     float64
+}
 
 func (d *missileDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity) {
+	if entity.VisibleF() == 0 {
+		return
+	}
 
+	// if m, ok := entity.(*shooter.Missile); ok {
+	// fmt.Println("living missile:", *m)
+	// }
+
+	pos := entity.Position()
+
+	gm := ebiten.GeoM{}
+	gm.Rotate(entity.Angle())
+	gm.Translate(pos.X, pos.Y)
+	gm.Translate(d.StagePos.X, d.StagePos.Y)
+	var x, y float64
+	v := ebiten.Vertex{
+		ColorR: 0.2,
+		ColorG: 0.8,
+		ColorB: 0.6,
+		ColorA: 1,
+	}
+
+	vertices := make([]ebiten.Vertex, 3)
+	x, y = gm.Apply(d.Size*0.5, 0)
+	v.DstX = float32(x)
+	v.DstY = float32(y)
+	vertices[0] = v
+	x, y = gm.Apply(-d.Size*0.5, -d.Size*0.25)
+	v.DstX = float32(x)
+	v.DstY = float32(y)
+	vertices[1] = v
+	x, y = gm.Apply(-d.Size*0.5, d.Size*0.5)
+	v.DstX = float32(x)
+	v.DstY = float32(y)
+	vertices[2] = v
+
+	topt := ebiten.DrawTrianglesOptions{}
+	screen.DrawTriangles(vertices, []uint16{0, 1, 2}, drawing.WhitePixel, &topt)
 }
 
 type harakiriDrawer struct{}
