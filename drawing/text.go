@@ -3,7 +3,7 @@ package drawing
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/noppikinatta/ebitenginejam03/asset/font"
+	"github.com/noppikinatta/ebitenginejam03/asset"
 )
 
 func DrawText(screen *ebiten.Image, txt string, fontSize float64, opt *ebiten.DrawImageOptions) {
@@ -17,7 +17,7 @@ func textImage(txt string, fontSize float64) *ebiten.Image {
 	if ok {
 		return img
 	}
-	face := font.FontFace(fontSize)
+	face := asset.FontFace(fontSize)
 	w, h := text.Measure(txt, face, face.Metrics().HLineGap)
 	img = ebiten.NewImage(int(w+1), int(h+1))
 	opt := text.DrawOptions{}
