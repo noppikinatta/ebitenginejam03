@@ -1,6 +1,8 @@
 package build
 
 import (
+	"fmt"
+
 	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/name"
 	"github.com/noppikinatta/ebitenginejam03/nego"
@@ -107,9 +109,9 @@ func (b *laserBuilder) calcedPower(improvedCount int) int {
 
 func (b *laserBuilder) TemplateData(improvedCount int) map[string]any {
 	return map[string]any{
-		"LastFrames": b.calcedLastFrames(improvedCount),
-		"Interval":   b.Interval,
-		"Power":      b.calcedPower(improvedCount),
+		"LastSec":     ftos(b.calcedLastFrames(improvedCount)),
+		"IntervalSec": ftos(b.Interval),
+		"Power":       b.calcedPower(improvedCount) * 60,
 	}
 }
 
@@ -164,8 +166,8 @@ func (b *missileBuilder) calcedPower(improvedCount int) int {
 
 func (b *missileBuilder) TemplateData(improvedCount int) map[string]any {
 	return map[string]any{
-		"Interval": b.calcedInterval(improvedCount),
-		"Power":    b.calcedPower(improvedCount),
+		"IntervalSec": ftos(b.calcedInterval(improvedCount)),
+		"Power":       b.calcedPower(improvedCount),
 	}
 }
 
@@ -251,8 +253,8 @@ func (b *barrierBuilder) calcedInterval(improvedCount int) int {
 
 func (b *barrierBuilder) TemplateData(improvedCount int) map[string]any {
 	return map[string]any{
-		"Durability": b.calcedDurability(improvedCount),
-		"Interval":   b.calcedInterval(improvedCount),
+		"Durability":  b.calcedDurability(improvedCount),
+		"IntervalSec": ftos(b.calcedInterval(improvedCount)),
 	}
 }
 
@@ -298,7 +300,7 @@ func (b *exhaustPortbuilder) calcedMultiplier(improvedCount int) float64 {
 
 func (b *exhaustPortbuilder) TemplateData(improvedCount int) map[string]any {
 	return map[string]any{
-		"Multiplier": b.calcedMultiplier(improvedCount),
+		"Multiplier": int(b.calcedMultiplier(improvedCount)),
 	}
 }
 
@@ -334,4 +336,9 @@ func improve[T int | float64](baseValue T, rate float64, count int) T {
 	}
 
 	return T(v)
+}
+
+func ftos(frames int) string {
+	s := float64(frames) / 60
+	return fmt.Sprintf("%.1f", s)
 }
