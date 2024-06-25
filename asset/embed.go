@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"log"
 	"path"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
@@ -46,7 +47,7 @@ func init() {
 	for _, e := range entries {
 		err := initTemplates(e, langDirPath)
 		if err != nil {
-			log.Fatal("cannot load templates for", e.Name(), ":", err)
+			log.Fatal("cannot load templates for ", e.Name(), ":", err)
 		}
 	}
 }
@@ -71,7 +72,7 @@ func initTemplates(entry fs.DirEntry, dirPath string) error {
 		return err
 	}
 
-	langTamplates[entry.Name()] = data
+	langTamplates[strings.TrimSuffix(entry.Name(), ".csv")] = data
 	return nil
 }
 
@@ -84,6 +85,8 @@ func loadCSV(filepath string) (map[string]string, error) {
 	m := make(map[string]string)
 	r := csv.NewReader(f)
 	r.Comment = '#'
+	r.LazyQuotes = true
+	r.TrimLeadingSpace = true
 	allContents, err := r.ReadAll()
 	if err != nil {
 		return nil, err
@@ -93,7 +96,7 @@ func loadCSV(filepath string) (map[string]string, error) {
 		if len(line) != 2 {
 			return nil, fmt.Errorf("line %d length should 2 but %d, data: %v", i, len(line), line)
 		}
-		m[line[0]] = line[1]
+		m[line[0]] = strings.ReplaceAll(line[1], `\n`, "\n")
 	}
 
 	return m, nil

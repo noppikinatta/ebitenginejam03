@@ -13,8 +13,12 @@ func Switch() string {
 	return txtProv.Switch()
 }
 
-func Text(templateKey string, data map[string]any) string {
-	return txtProv.Text(templateKey, data)
+func Text(key string) string {
+	return ExecuteTemplate(key, nil)
+}
+
+func ExecuteTemplate(key string, data map[string]any) string {
+	return txtProv.ExecuteTemplate(key, data)
 }
 
 const defaultLanguage = "english"
@@ -47,11 +51,15 @@ func (p *textProvider) Switch() string {
 	return strings.ToUpper(langName[:1]) + langName[1:]
 }
 
-func (p *textProvider) Text(key string, data map[string]any) string {
+func (p *textProvider) ExecuteTemplate(key string, data map[string]any) string {
 	lang := p.Languages[p.CurrentLanguageIdx]
 	tmpl, ok := p.Templates[lang][key]
 	if !ok {
 		return fmt.Sprintf("TMPL_NOT_FOUND: %s, %v", key, data)
+	}
+
+	if data == nil {
+		return tmpl.Text
 	}
 
 	return tmpl.Execute(data)
