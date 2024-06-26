@@ -47,7 +47,7 @@ func (p *textProvider) Switch() string {
 	l := len(p.Languages)
 	p.CurrentLanguageIdx = (p.CurrentLanguageIdx + 1) % l
 
-	langName := p.Languages[l]
+	langName := p.Languages[p.CurrentLanguageIdx]
 	return strings.ToUpper(langName[:1]) + langName[1:]
 }
 
