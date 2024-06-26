@@ -2,39 +2,60 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/noppikinatta/ebitenginejam03/name"
+	nego2 "github.com/noppikinatta/ebitenginejam03/nego"
 	"github.com/noppikinatta/ebitenginejam03/scene"
+	"github.com/noppikinatta/ebitenginejam03/scene/battle"
 	"github.com/noppikinatta/ebitenginejam03/scene/nego"
 	"github.com/noppikinatta/ebitenginejam03/scene/prologue"
-	"github.com/noppikinatta/ebitenginejam03/scene/title"
 )
 
 type Game struct {
-	scenes *scene.Container
+	scenes       *scene.Container
+	langSwitcher *langSwitcher
 }
 
 func NewGame() *Game {
-	title := title.NewTitleScene()
+	//title := title.NewTitleScene()
 	prologue := prologue.NewPrologueScene()
-	negotiation := nego.NewNegotiationScene()
+	negotiation, resulter := nego.NewNegotiationScene()
+	battle := battle.NewBattleScene(resulter)
 
-	scenes := scene.NewContainer(title, prologue, negotiation)
+	scenes := scene.NewContainer(prologue, negotiation, battle)
 
-	scenes.AddTransition(negotiation, title)
+	scenes.AddTransition(battle, prologue)
 
 	g := Game{
-		scenes: scenes,
+		scenes:       scenes,
+		langSwitcher: &langSwitcher{},
 	}
 	return &g
 }
 
 func (g *Game) Update() error {
+	g.langSwitcher.Update()
 	return g.scenes.Update()
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.scenes.Draw(screen)
+	g.langSwitcher.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return outsideWidth / 2, outsideHeight / 2
+	return outsideWidth, outsideHeight
+}
+
+func OrderForTest() []*nego2.Equip {
+	eqps := make([]*nego2.Equip, 0)
+	o := func(name string, improvedCount int) {
+		e := &nego2.Equip{
+			Name: name, ImprovedCount: improvedCount,
+		}
+		eqps = append(eqps, e)
+	}
+
+	o(name.Equip1Laser, 3)
+
+	return eqps
 }
