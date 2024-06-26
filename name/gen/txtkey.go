@@ -28,7 +28,7 @@ func main() {
 	sort.Strings(kk)
 
 	for _, k := range kk {
-		s := fmt.Sprintf("%s = \"%s\"", varName(k), k)
+		s := fmt.Sprintf("TextKey%s = \"%s\"", varName(k), k)
 		buf.WriteString(s)
 		buf.WriteString("\n")
 	}
