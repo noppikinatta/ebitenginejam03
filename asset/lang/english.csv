@@ -23,7 +23,7 @@ vendor-2-desc, Develops barriers and armor. Has a penchant for creating thermal 
 vendor-3, Cultural Victory Co.
 vendor-3-desc, Knows nothing about space fortresses.
 equip-1-laser, Laser Cannon
-equip-1-laser-desc, Fires a beam every {{.IntervalSec}} seconds for {{.LastSec}} seconds. Damage: {{.Power}} / s
+equip-1-laser-desc, Fires a beam every {{.IntervalSec}} seconds for {{.LastSec}} seconds. Damage: {{.Power}} per second
 equip-2-missile, Space Missile
 equip-2-missile-desc, Launches a homing missile every {{.IntervalSec}} seconds. Damage: {{.Power}}
 equip-3-harakiri, Harakiri System

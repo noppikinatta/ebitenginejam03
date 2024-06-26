@@ -33,11 +33,13 @@ func textImage(txt string, fontSize float64) *ebiten.Image {
 	face := asset.FontFace(fontSize)
 	lineSpacing := face.Metrics().VLineGap * 1.1
 	w, h := text.Measure(txt, face, lineSpacing)
-	img = ebiten.NewImage(int(w+1), int(h+1))
+	shadeOffset := fontSize / 10
+
+	img = ebiten.NewImage(int(w+shadeOffset+1), int(h+shadeOffset+1))
 	opt := text.DrawOptions{}
 	opt.LineSpacing = lineSpacing
 	opt.ColorScale.ScaleWithColor(color.Black)
-	opt.GeoM.Translate(1, 1)
+	opt.GeoM.Translate(shadeOffset, shadeOffset)
 	text.Draw(img, txt, face, &opt)
 
 	opt = text.DrawOptions{}
