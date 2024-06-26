@@ -10,6 +10,7 @@ import (
 	"github.com/noppikinatta/ebitenginejam03/build"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
+	"github.com/noppikinatta/ebitenginejam03/lang"
 	"github.com/noppikinatta/ebitenginejam03/name"
 	"github.com/noppikinatta/ebitenginejam03/nego"
 	"github.com/noppikinatta/ebitenginejam03/random"
@@ -104,12 +105,22 @@ func (s *negotiationGameScene) drawBackground(screen *ebiten.Image) {
 }
 
 func (s *negotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(604, 8)
+	drawing.DrawTextByKey(screen, name.TextKeyNegotiationTitle3, 14, &opt)
+
 	if len(s.Negotiation.ApprovedEquips) == 0 {
 		return
 	}
 
+	const (
+		equipNameLeft float64 = 68
+		padding       float64 = 2
+		itemheightMax float64 = 80
+	)
+
 	topLeft := geom.PointF{}
-	topLeft.X = s.Negotiation.Size.X
+	topLeft.X = s.Negotiation.Size.X + padding
 	topLeft.Y = s.StagePos.Y
 
 	rightBottom := geom.PointF{}
@@ -117,16 +128,15 @@ func (s *negotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
 	rightBottom.Y = float64(screen.Bounds().Max.Y)
 
 	areaHeight := rightBottom.Y - topLeft.Y
-	itemHeight := math.Min(64, areaHeight/float64(len(s.Negotiation.ApprovedEquips)))
+	itemHeight := math.Min(itemheightMax, areaHeight/float64(len(s.Negotiation.ApprovedEquips)))
 
 	for i, e := range s.Negotiation.ApprovedEquips {
 		y := itemHeight * float64(i)
 
 		opt := ebiten.DrawImageOptions{}
-		opt.ColorScale.Scale(1, 0.5, 0, 1)
-		opt.GeoM.Translate(topLeft.X, y)
+		opt.GeoM.Translate(topLeft.X+equipNameLeft, topLeft.Y+y)
 
-		name := e.Name
+		name := lang.Text(e.Name)
 		if e.ImprovedCount > 0 {
 			name += fmt.Sprintf("+%d", e.ImprovedCount)
 		}

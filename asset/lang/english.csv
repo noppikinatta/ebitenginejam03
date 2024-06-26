@@ -1,5 +1,5 @@
-story-1, "In the year 201306151707 of the Observable Universe Calendar, ¥nDark Lord Dinner Ebitender of the Observable Universe Empire ¥ndevised a plan to annihilate the insufferable Rebel Army ¥nby constructing an overwhelmingly powerful ultimate weapon..."
-story-2, "He requested proposals for armaments from ¥nhis totally reliable vendors..."
+story-1, "In the year 201306151707 of the Observable Universe Calendar, \nDark Lord Dinner Ebitender of the Observable Universe Empire \ndevised a plan to annihilate the insufferable Rebel Army \nby constructing an overwhelmingly powerful ultimate weapon..."
+story-2, "He requested proposals for armaments from \nhis totally reliable vendors..."
 story-3, "And awaited reports from his totally genius middle managers..."
 story-4, "The ultimate weapon construction project is about to begin..."
 managers-title, " TheTotally genius middle managers:"
@@ -27,7 +27,7 @@ equip-1-laser-desc, Fires a beam every {{.IntervalSec}} seconds for {{.LastSec}}
 equip-2-missile, Space Missile
 equip-2-missile-desc, Launches a homing missile every {{.IntervalSec}} seconds. Damage: {{.Power}}
 equip-3-harakiri, Harakiri System
-equip-3-harakiri-desc, "A katana that tracks enemies up to {{.MaxSanity}} times and eventually returns to the mothership.¥nDamage: {{.Power}}"
+equip-3-harakiri-desc, "A katana that tracks enemies up to {{.MaxSanity}} times and eventually returns to the mothership.\nDamage: {{.Power}}"
 equip-4-barrier, Barrier
 equip-4-barrier-desc, Blocks {{.Durability}} attacks and regenerates after {{.IntervalSec}} seconds if broken
 equip-5-armor, Additional Armor

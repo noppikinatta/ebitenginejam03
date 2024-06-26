@@ -96,7 +96,7 @@ func loadCSV(filepath string) (map[string]string, error) {
 		if len(line) != 2 {
 			return nil, fmt.Errorf("line %d length should 2 but %d, data: %v", i, len(line), line)
 		}
-		m[line[0]] = strings.ReplaceAll(line[1], `¥n`, "\n")
+		m[line[0]] = strings.ReplaceAll(line[1], `\n`, "\n")
 	}
 
 	return m, nil
