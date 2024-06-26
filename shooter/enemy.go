@@ -92,6 +92,7 @@ func (l *EnemyLauncher) Targets() []Target {
 
 type Enemy struct {
 	HP               int
+	MaxHP            int
 	State            EnemyState
 	Hit              geom.Circle
 	Speed            float64

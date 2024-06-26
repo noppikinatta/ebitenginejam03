@@ -114,11 +114,12 @@ func (s *battleGameScene) buildMyShip(orders []*nego.Equip) *shooter.MyShip {
 }
 
 func (s *battleGameScene) createEnemies() *shooter.EnemyLauncher {
-	ee := make([]*shooter.Enemy, 100)
+	ee := make([]*shooter.Enemy, 80)
 
 	for i := range len(ee) {
 		ee[i] = &shooter.Enemy{
 			HP:               100,
+			MaxHP:            100,
 			State:            shooter.EnemyStateReady,
 			Hit:              geom.Circle{Radius: 8},
 			ShootingInterval: 180,
@@ -193,6 +194,7 @@ func (s *battleGameScene) Draw(screen *ebiten.Image) {
 	s.drawMyShip(screen)
 	s.drawVisibleEntities(screen)
 	s.drawEnemies(screen)
+	s.drawEnemyList(screen)
 	s.drawExplosions(screen)
 }
 
@@ -328,6 +330,39 @@ func (s *battleGameScene) drawEnemy(screen *ebiten.Image, e *shooter.Enemy) {
 
 	for _, b := range e.Bullets {
 		s.drawEnemyBullet(screen, b)
+	}
+}
+
+func (s *battleGameScene) drawEnemyList(screen *ebiten.Image) {
+	const (
+		leftOffset float64 = 600
+		clmSize    float64 = 40
+		rowSize    float64 = 40
+		clmCount           = 5
+	)
+
+	for i, e := range s.Stage.EnemyLauncher.Enemies {
+		if e.State == shooter.EnemyStateDead {
+			continue
+		}
+
+		x := float64(i%clmCount) * clmSize
+		x += leftOffset + clmSize*0.5
+		y := float64(i/clmCount) * rowSize
+		y += rowSize * 0.5
+
+		circle := geom.Circle{Center: geom.PointF{X: x, Y: y}, Radius: 16}
+
+		var clr color.Color
+		if e.State == shooter.EnemyStateOnStage {
+			gb := uint8(255 * float64(e.HP/e.MaxHP))
+			clr = color.RGBA{R: 255, G: gb, B: gb, A: 255}
+
+		} else {
+			clr = color.RGBA{R: 64, G: 64, B: 64, A: 128}
+		}
+
+		s.drawCircle(screen, circle, clr, color.Transparent)
 	}
 }
 
