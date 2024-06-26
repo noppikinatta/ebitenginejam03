@@ -13,6 +13,7 @@ type Container struct {
 	scenes      []Scene
 	currentIdx  int
 	transitions map[int]int
+	Handlers    []Handler
 }
 
 func NewContainer(scenes ...Scene) *Container {
@@ -50,6 +51,10 @@ func (c *Container) indexOf(s Scene) (int, bool) {
 }
 
 func (c *Container) Update() error {
+	for _, h := range c.Handlers {
+		h.Handle(c)
+	}
+
 	if c.End() {
 		return nil
 	}
