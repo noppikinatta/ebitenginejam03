@@ -29,9 +29,11 @@ func textImage(txt string, fontSize float64) *ebiten.Image {
 		return img
 	}
 	face := asset.FontFace(fontSize)
-	w, h := text.Measure(txt, face, face.Metrics().HLineGap)
+	lineSpacing := face.Metrics().VLineGap * 1.1
+	w, h := text.Measure(txt, face, lineSpacing)
 	img = ebiten.NewImage(int(w+1), int(h+1))
 	opt := text.DrawOptions{}
+	opt.LineSpacing = lineSpacing
 	text.Draw(img, txt, face, &opt)
 	textCache[k] = img
 	return img
