@@ -3,7 +3,7 @@ package game
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/noppikinatta/ebitenginejam03/name"
-	nego2 "github.com/noppikinatta/ebitenginejam03/nego"
+	negodomain "github.com/noppikinatta/ebitenginejam03/nego"
 	"github.com/noppikinatta/ebitenginejam03/scene"
 	"github.com/noppikinatta/ebitenginejam03/scene/battle"
 	"github.com/noppikinatta/ebitenginejam03/scene/nego"
@@ -46,16 +46,16 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return outsideWidth, outsideHeight
 }
 
-func OrderForTest() []*nego2.Equip {
-	eqps := make([]*nego2.Equip, 0)
+func OrderForTest() []*negodomain.Equip {
+	eqps := make([]*negodomain.Equip, 0)
 	o := func(name string, improvedCount int) {
-		e := &nego2.Equip{
+		e := &negodomain.Equip{
 			Name: name, ImprovedCount: improvedCount,
 		}
 		eqps = append(eqps, e)
 	}
 
-	o(name.Equip1Laser, 3)
+	o(name.TextKeyEquip1Laser, 3)
 
 	return eqps
 }
