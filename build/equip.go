@@ -18,15 +18,31 @@ func BuildEquips(baseShip *shooter.MyShip, orders []*nego.Equip) {
 	}
 }
 
+type EquipDescriptor struct {
+	builders map[string]builder
+}
+
+func NewEquipDescriptor() *EquipDescriptor {
+	d := EquipDescriptor{
+		builders: createBuilders(),
+	}
+	return &d
+}
+
+func (d *EquipDescriptor) TemplateData(txtKey string, improvedCount int) map[string]any {
+	b := d.builders[txtKey]
+	return b.TemplateData(improvedCount)
+}
+
 func createBuilders() map[string]builder {
 	return map[string]builder{
-		name.EquipLaserCannon: &laserBuilder{
+		name.TextKeyEquip1Laser: &laserBuilder{
 			LastFrames: 200,
 			Interval:   300,
 			Width:      24,
 			Power:      10,
 		},
-		name.EquipSpaceMissile: &missileBuilder{
+		name.TextKeyEquip2Missile: &missileBuilder{
 			Interval:       90,
 			MaxCount:       6,
 			HitRadius:      8,
@@ -36,7 +52,7 @@ func createBuilders() map[string]builder {
 			Power:          50,
 			LifetimeFrames: 180,
 		},
-		name.EquipHarakiriSystem: &harakiriSystemBuilder{
+		name.TextKeyEquip3Harakiri: &harakiriSystemBuilder{
 			Interval:       60,
 			MaxCount:       1,
 			HitRadius:      16,
@@ -45,28 +61,28 @@ func createBuilders() map[string]builder {
 			MaxSanity:      3,
 			AimingInterval: 120,
 		},
-		name.EquipBarrier: &barrierBuilder{
+		name.TextKeyEquip4Barrier: &barrierBuilder{
 			HitRadius:  48,
 			Durability: 10,
 			Interval:   240,
 		},
-		name.EquipArmorPlate: &armorPlatebuilder{
+		name.TextKeyEquip5Armor: &armorPlatebuilder{
 			AdditinalArmor: 2000,
 		},
-		name.EquipThermalExhaustPort: &exhaustPortbuilder{
+		name.TextKeyEquip6Exhaust: &exhaustPortbuilder{
 			HitRadius:  8,
 			Multiplier: 10,
 		},
-		name.EquipStonehenge: &uselessBuilder{
-			Name:  name.EquipStonehenge,
+		name.TextKeyEquip7Stonehenge: &uselessBuilder{
+			Name:  name.TextKeyEquip7Stonehenge,
 			Value: 30,
 		},
-		name.EquipSushiBar: &uselessBuilder{
-			Name:  name.EquipSushiBar,
+		name.TextKeyEquip8Sushibar: &uselessBuilder{
+			Name:  name.TextKeyEquip8Sushibar,
 			Value: 150,
 		},
-		name.EquipOperaHouse: &uselessBuilder{
-			Name:  name.EquipOperaHouse,
+		name.TextKeyEquip9Operahouse: &uselessBuilder{
+			Name:  name.TextKeyEquip9Operahouse,
 			Value: 1507,
 		},
 	}
@@ -86,7 +102,7 @@ type laserBuilder struct {
 
 func (b *laserBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	eqp := shooter.Equip{
-		Name: name.EquipLaserCannon,
+		Name: name.TextKeyEquip1Laser,
 		Updater: &shooter.EquipUpdaterLaser{
 			ShipHit:    ship.Hit,
 			LastFrames: b.calcedLastFrames(improvedCount),
@@ -128,7 +144,7 @@ type missileBuilder struct {
 
 func (b *missileBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	eqp := shooter.Equip{
-		Name: name.EquipSpaceMissile,
+		Name: name.TextKeyEquip2Missile,
 		Updater: &shooter.EquipUpdaterMissile{
 			Interval: b.calcedInterval(improvedCount),
 			Missiles: b.buildMissiles(improvedCount),
@@ -183,7 +199,7 @@ type harakiriSystemBuilder struct {
 
 func (b *harakiriSystemBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	eqp := shooter.Equip{
-		Name: name.EquipHarakiriSystem,
+		Name: name.TextKeyEquip3Harakiri,
 		Updater: &shooter.EquipUpdaterHarakiriSystem{
 			Interval:  b.Interval,
 			MaxSanity: b.calcedMaxSanity(improvedCount),
@@ -232,7 +248,7 @@ type barrierBuilder struct {
 
 func (b *barrierBuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	eqp := shooter.Equip{
-		Name: name.EquipBarrier,
+		Name: name.TextKeyEquip4Barrier,
 		Updater: &shooter.EquipUpdaterBarrier{
 			Hit:        geom.Circle{Radius: b.HitRadius},
 			Durability: b.calcedDurability(improvedCount),
@@ -283,7 +299,7 @@ type exhaustPortbuilder struct {
 
 func (b *exhaustPortbuilder) Build(ship *shooter.MyShip, improvedCount int) {
 	eqp := shooter.Equip{
-		Name: name.EquipThermalExhaustPort,
+		Name: name.TextKeyEquip6Exhaust,
 		Updater: &shooter.EquipUpdaterExhaust{
 			Myship:     ship,
 			Hit:        geom.Circle{Radius: b.HitRadius},

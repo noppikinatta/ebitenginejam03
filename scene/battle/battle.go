@@ -62,21 +62,21 @@ func (s *battleGameScene) init() {
 	s.Stage.HitTest = s.createHitTest()
 	s.VisibleEntities = s.createVisibleEntities()
 	s.EntityDrawers = map[string]visibleEntityDrawer{
-		name.EquipLaserCannon: &laserDrawer{
+		name.TextKeyEquip1Laser: &laserDrawer{
 			ShipHit:     s.Stage.MyShip.Hit,
 			StagePos:    s.StagePos,
 			LaserLength: (s.Stage.Size.X*0.5 - s.Stage.MyShip.Hit.Radius) * 2,
 			Width:       24,
 		},
-		name.EquipSpaceMissile: &missileDrawer{
+		name.TextKeyEquip2Missile: &missileDrawer{
 			StagePos: s.StagePos,
 			Size:     8,
 		},
-		name.EquipHarakiriSystem: &harakiriDrawer{
+		name.TextKeyEquip3Harakiri: &harakiriDrawer{
 			StagePos: s.StagePos,
 			Radius:   16,
 		},
-		name.EquipBarrier: &barrierDrawer{
+		name.TextKeyEquip4Barrier: &barrierDrawer{
 			StagePos: s.StagePos,
 			Radius:   48,
 		},

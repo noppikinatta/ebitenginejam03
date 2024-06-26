@@ -113,7 +113,7 @@ func (u *EquipUpdaterLaser) VisibleF() float64 {
 }
 
 func (u *EquipUpdaterLaser) Name() string {
-	return name.EquipLaserCannon
+	return name.TextKeyEquip1Laser
 }
 
 func (u *EquipUpdaterLaser) Bullets() []Bullet {
@@ -325,7 +325,7 @@ func (m *Missile) VisibleF() float64 {
 }
 
 func (m *Missile) Name() string {
-	return name.EquipSpaceMissile
+	return name.TextKeyEquip2Missile
 }
 
 type MissileState int
@@ -535,7 +535,7 @@ func (h *HarakiriSystem) VisibleF() float64 {
 }
 
 func (h *HarakiriSystem) Name() string {
-	return name.EquipHarakiriSystem
+	return name.TextKeyEquip3Harakiri
 }
 
 type EquipUpdaterBarrier struct {
@@ -605,7 +605,7 @@ func (u *EquipUpdaterBarrier) VisibleF() float64 {
 }
 
 func (u *EquipUpdaterBarrier) Name() string {
-	return name.EquipBarrier
+	return name.TextKeyEquip4Barrier
 }
 
 type EquipUpdaterExhaust struct {

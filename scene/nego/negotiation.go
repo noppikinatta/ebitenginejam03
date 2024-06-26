@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/noppikinatta/ebitenginejam03/build"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/name"
@@ -17,6 +18,7 @@ import (
 type negotiationGameScene struct {
 	Negotiation *nego.Negotiation
 	StagePos    geom.PointF
+	equipDesc   *build.EquipDescriptor
 }
 
 func newNegotiationGameScene() *negotiationGameScene {
@@ -31,7 +33,11 @@ func newNegotiationGameScene() *negotiationGameScene {
 		Money:    10000,
 	}
 
-	return &negotiationGameScene{Negotiation: &n, StagePos: geom.PointF{X: 0, Y: 40}}
+	return &negotiationGameScene{
+		Negotiation: &n,
+		StagePos:    geom.PointF{X: 0, Y: 40},
+		equipDesc:   build.NewEquipDescriptor(),
+	}
 }
 
 func (s *negotiationGameScene) Update() error {
@@ -159,8 +165,8 @@ func (s *negotiationGameScene) drawVendors(screen *ebiten.Image) {
 		s.drawRect(screen, topLeft, bottomRight, vert)
 
 		iopt := ebiten.DrawImageOptions{}
-		iopt.GeoM.Translate(topLeft.X, topLeft.Y)
-		drawing.DrawText(screen, v.Name, 12, &iopt)
+		iopt.GeoM.Translate(topLeft.X, bottomRight.Y-20)
+		drawing.DrawTextByKey(screen, v.Name, 12, &iopt)
 	}
 }
 
@@ -201,8 +207,8 @@ func (s *negotiationGameScene) drawManagers(screen *ebiten.Image) {
 		screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
 
 		iopt := ebiten.DrawImageOptions{}
-		iopt.GeoM.Translate(float64(vertices[0].DstX), float64(vertices[0].DstY))
-		drawing.DrawText(screen, m.Name, 12, &iopt)
+		iopt.GeoM.Translate(float64(vertices[1].DstX), float64(vertices[1].DstY)-20)
+		drawing.DrawTextByKey(screen, m.Name, 12, &iopt)
 	}
 }
 
@@ -275,6 +281,16 @@ func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
 	if s.Negotiation.ProposalDelay == nil {
 		return
 	}
+
+	const (
+		triangleSize  float64 = 32
+		baloonPadding float64 = 8
+		baloonHeight  float64 = 80
+		equipNameTop  float64 = 4
+		equipNameLeft float64 = 80
+		equipDescTop  float32 = 32
+	)
+
 	v := ebiten.Vertex{
 		ColorR: 0,
 		ColorG: 0,
@@ -287,29 +303,35 @@ func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
 	v.DstX = float32(startPos.X)
 	v.DstY = float32(startPos.Y)
 	triangleVerts[0] = v
-	v.DstX = float32(startPos.X + 16)
-	v.DstY = float32(startPos.Y - 32)
+	v.DstX = float32(startPos.X + triangleSize/2)
+	v.DstY = float32(startPos.Y - triangleSize)
 	triangleVerts[1] = v
-	v.DstX = float32(startPos.X - 16)
-	v.DstY = float32(startPos.Y - 32)
+	v.DstX = float32(startPos.X - triangleSize/2)
+	v.DstY = float32(startPos.Y - triangleSize)
 	triangleVerts[2] = v
 
 	topt := ebiten.DrawTrianglesOptions{}
 	screen.DrawTriangles(triangleVerts, []uint16{0, 1, 2}, drawing.WhitePixel, &topt)
 
 	baloonTopLeft := geom.PointF{
-		X: s.StagePos.X + 8,
-		Y: startPos.Y - 32 - 64,
+		X: s.StagePos.X + baloonPadding,
+		Y: startPos.Y - triangleSize - baloonHeight,
 	}
 	baloonBottomRight := geom.PointF{
-		X: s.StagePos.X + s.Negotiation.Size.X - 8,
-		Y: startPos.Y - 32,
+		X: s.StagePos.X + s.Negotiation.Size.X - baloonPadding,
+		Y: startPos.Y - triangleSize,
 	}
 	s.drawRect(screen, baloonTopLeft, baloonBottomRight, v)
 
 	iopt := ebiten.DrawImageOptions{}
-	iopt.GeoM.Translate(baloonTopLeft.X, baloonTopLeft.Y)
-	drawing.DrawText(screen, s.Negotiation.ProposalDelay.ImageName(), 12, &iopt)
+	iopt.GeoM.Translate(baloonTopLeft.X+equipNameLeft, baloonTopLeft.Y+equipNameTop)
+	eqpName := s.Negotiation.ProposalDelay.Equip.Name
+	drawing.DrawTextByKey(screen, eqpName, 14, &iopt)
+
+	iopt.GeoM.Translate(0, float64(equipDescTop))
+	eqpDesc := name.DescKey(eqpName)
+	tmplData := s.equipDesc.TemplateData(eqpName, 0)
+	drawing.DrawTextTemplate(screen, eqpDesc, tmplData, 12, &iopt)
 }
 
 func (s *negotiationGameScene) End() bool {
@@ -329,16 +351,16 @@ func createVendors() []*nego.Vendor {
 
 	vv := make([]*nego.Vendor, 0)
 	vv = append(vv, nego.NewVendor(
-		name.VendorSamuraiAvionics,
-		selectProposals(pm, name.EquipLaserCannon, name.EquipSpaceMissile, name.EquipHarakiriSystem),
+		name.TextKeyVendor1,
+		selectProposals(pm, name.TextKeyEquip1Laser, name.TextKeyEquip2Missile, name.TextKeyEquip3Harakiri),
 		rand.New(random.Source())))
 	vv = append(vv, nego.NewVendor(
-		name.VendorSalamisIndustry,
-		selectProposals(pm, name.EquipBarrier, name.EquipArmorPlate, name.EquipThermalExhaustPort),
+		name.TextKeyVendor2,
+		selectProposals(pm, name.TextKeyEquip4Barrier, name.TextKeyEquip5Armor, name.TextKeyEquip6Exhaust),
 		rand.New(random.Source())))
 	vv = append(vv, nego.NewVendor(
-		name.VendorCultualVictoryCo,
-		selectProposals(pm, name.EquipStonehenge, name.EquipSushiBar, name.EquipOperaHouse),
+		name.TextKeyVendor3,
+		selectProposals(pm, name.TextKeyEquip7Stonehenge, name.TextKeyEquip8Sushibar, name.TextKeyEquip9Operahouse),
 		rand.New(random.Source())))
 
 	return vv
@@ -368,15 +390,15 @@ func createProposals() map[string]*nego.Proposal {
 		}
 	}
 
-	addEquip(name.EquipLaserCannon, 1000)
-	addEquip(name.EquipSpaceMissile, 1000)
-	addEquip(name.EquipHarakiriSystem, 1500)
-	addEquip(name.EquipBarrier, 1000)
-	addEquip(name.EquipArmorPlate, 1000)
-	addEquip(name.EquipThermalExhaustPort, 500)
-	addEquip(name.EquipStonehenge, 1000)
-	addEquip(name.EquipSushiBar, 1000)
-	addEquip(name.EquipOperaHouse, 3000)
+	addEquip(name.TextKeyEquip1Laser, 1000)
+	addEquip(name.TextKeyEquip2Missile, 1000)
+	addEquip(name.TextKeyEquip3Harakiri, 1500)
+	addEquip(name.TextKeyEquip4Barrier, 1000)
+	addEquip(name.TextKeyEquip5Armor, 1000)
+	addEquip(name.TextKeyEquip6Exhaust, 500)
+	addEquip(name.TextKeyEquip7Stonehenge, 1000)
+	addEquip(name.TextKeyEquip8Sushibar, 1000)
+	addEquip(name.TextKeyEquip9Operahouse, 3000)
 
 	return m
 }
@@ -384,18 +406,17 @@ func createProposals() map[string]*nego.Proposal {
 func createManagers() []*nego.Manager {
 	mm := make([]*nego.Manager, 0)
 	mm = append(mm, nego.NewManager(
-		name.ManagerMachSonic,
+		name.TextKeyManager1,
 		&nego.ProposalProcessorAccelerate{Value: 2},
 		&nego.ProposalProcessorStopRotate{},
 		&nego.ProposalProcessorCustomImageName{ImageName: ""}))
 	mm = append(mm, nego.NewManager(
-		name.ManagerBirdiePat,
+		name.TextKeyManager2,
 		&nego.ProposalProcessorReduceCost{Multiplier: 0.8},
 		&nego.ProposalProcessorCustomImageName{ImageName: name.EquipImageGolf}))
 	mm = append(mm, nego.NewManager(
-		name.ManagerLongWinded,
-		&nego.ProposalProcessorAccelerate{Value: 0.8},
-		&nego.ProposalProcessorRotate{Value: 1},
+		name.TextKeyManager3,
+		&nego.ProposalProcessorRotate{Value: 0.25},
 		&nego.ProposalProcessorImprove{}))
 
 	return mm

@@ -1,6 +1,8 @@
 package drawing
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/noppikinatta/ebitenginejam03/asset"
@@ -33,6 +35,12 @@ func textImage(txt string, fontSize float64) *ebiten.Image {
 	w, h := text.Measure(txt, face, lineSpacing)
 	img = ebiten.NewImage(int(w+1), int(h+1))
 	opt := text.DrawOptions{}
+	opt.LineSpacing = lineSpacing
+	opt.ColorScale.ScaleWithColor(color.Black)
+	opt.GeoM.Translate(1, 1)
+	text.Draw(img, txt, face, &opt)
+
+	opt = text.DrawOptions{}
 	opt.LineSpacing = lineSpacing
 	text.Draw(img, txt, face, &opt)
 	textCache[k] = img
