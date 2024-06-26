@@ -36,7 +36,7 @@ func newNegotiationGameScene() *negotiationGameScene {
 	}
 
 	cmax := ebiten.ColorScale{}
-	cmax.Scale(0.75, 0.75, 0.75, 0.75)
+	cmax.Scale(0.75, 0.75, 0.75, 1)
 
 	cmin := ebiten.ColorScale{}
 	cmin.SetG(0.25)
@@ -49,9 +49,9 @@ func newNegotiationGameScene() *negotiationGameScene {
 		moneyDrawer: &drawing.GaugeDrawer{
 			Current:       n.Money,
 			Max:           n.Money,
-			TopLeft:       geom.PointF{X: 40, Y: 0},
+			TopLeft:       geom.PointF{X: 0, Y: 0},
 			BottomRight:   geom.PointF{X: 600, Y: 40},
-			TextOffset:    geom.PointF{X: 6, Y: 6},
+			TextOffset:    geom.PointF{X: 46, Y: 6},
 			FontSize:      18,
 			ColorScaleMax: cmax,
 			ColorScaleMin: cmin,

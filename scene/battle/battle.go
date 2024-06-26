@@ -25,6 +25,7 @@ type battleGameScene struct {
 	VisibleEntities []shooter.VisibleEntity
 	EntityDrawers   map[string]visibleEntityDrawer
 	explosionDrawer *explosionDrawer
+	hpDrawer        *drawing.GaugeDrawer
 	StagePos        geom.PointF
 }
 
@@ -33,10 +34,25 @@ func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
 		Size: geom.PointF{X: 600, Y: 600},
 	}
 
+	cmax := ebiten.ColorScale{}
+	cmax.Scale(0.75, 0.75, 0.75, 1)
+
+	cmin := ebiten.ColorScale{}
+	cmin.SetG(0.25)
+	cmin.SetB(0.25)
+
 	return &battleGameScene{
 		orderer:  orderer,
 		Stage:    &s,
 		StagePos: geom.PointF{X: 0, Y: 40},
+		hpDrawer: &drawing.GaugeDrawer{
+			TopLeft:       geom.PointF{X: 0, Y: 0},
+			BottomRight:   geom.PointF{X: 600, Y: 40},
+			TextOffset:    geom.PointF{X: 64, Y: 6},
+			FontSize:      18,
+			ColorScaleMax: cmax,
+			ColorScaleMin: cmin,
+		},
 	}
 }
 
@@ -51,6 +67,7 @@ func (s *battleGameScene) Update() error {
 	cursorPos = cursorPos.Subtract(s.StagePos)
 	s.Stage.Update(cursorPos)
 	s.explosionDrawer.Update()
+	s.hpDrawer.Current = s.Stage.MyShip.HP
 
 	return nil
 }
@@ -81,6 +98,8 @@ func (s *battleGameScene) init() {
 			Radius:   48,
 		},
 	}
+	s.hpDrawer.Max = s.Stage.MyShip.HP
+	s.hpDrawer.Current = s.Stage.MyShip.HP
 }
 
 func (s *battleGameScene) buildMyShip(orders []*nego.Equip) *shooter.MyShip {
@@ -232,7 +251,7 @@ func (s *battleGameScene) drawBackground(screen *ebiten.Image) {
 }
 
 func (s *battleGameScene) drawShipHP(screen *ebiten.Image) {
-	drawing.DrawText(screen, fmt.Sprint(s.Stage.MyShip.HP), 18, &ebiten.DrawImageOptions{})
+	s.hpDrawer.Draw(screen)
 }
 
 func (s *battleGameScene) drawMyShip(screen *ebiten.Image) {
