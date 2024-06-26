@@ -20,6 +20,7 @@ type negotiationGameScene struct {
 	Negotiation *nego.Negotiation
 	StagePos    geom.PointF
 	equipDesc   *build.EquipDescriptor
+	moneyDrawer *drawing.GaugeDrawer
 }
 
 func newNegotiationGameScene() *negotiationGameScene {
@@ -34,10 +35,27 @@ func newNegotiationGameScene() *negotiationGameScene {
 		Money:    10000,
 	}
 
+	cmax := ebiten.ColorScale{}
+	cmax.Scale(0.75, 0.75, 0.75, 0.75)
+
+	cmin := ebiten.ColorScale{}
+	cmin.SetG(0.25)
+	cmin.SetB(0.25)
+
 	return &negotiationGameScene{
 		Negotiation: &n,
 		StagePos:    geom.PointF{X: 0, Y: 40},
 		equipDesc:   build.NewEquipDescriptor(),
+		moneyDrawer: &drawing.GaugeDrawer{
+			Current:       n.Money,
+			Max:           n.Money,
+			TopLeft:       geom.PointF{X: 40, Y: 0},
+			BottomRight:   geom.PointF{X: 600, Y: 40},
+			TextOffset:    geom.PointF{X: 6, Y: 6},
+			FontSize:      18,
+			ColorScaleMax: cmax,
+			ColorScaleMin: cmin,
+		},
 	}
 }
 
@@ -45,6 +63,7 @@ func (s *negotiationGameScene) Update() error {
 	x, _ := ebiten.CursorPosition()
 	x -= int(s.StagePos.X)
 	s.Negotiation.Update(float64(x))
+	s.moneyDrawer.Current = s.Negotiation.Money
 	return nil
 }
 
@@ -146,7 +165,7 @@ func (s *negotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
 }
 
 func (s *negotiationGameScene) drawMoney(screen *ebiten.Image) {
-	drawing.DrawText(screen, fmt.Sprint(s.Negotiation.Money), 18, &ebiten.DrawImageOptions{})
+	s.moneyDrawer.Draw(screen)
 }
 
 func (s *negotiationGameScene) drawVendors(screen *ebiten.Image) {
