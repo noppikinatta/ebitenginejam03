@@ -11,30 +11,30 @@ import (
 )
 
 type langSwitcher struct {
-	Alpha       float32
-	Keys        []ebiten.Key
-	CurrentLang string
+	alpha       float32
+	keys        []ebiten.Key
+	currentLang string
 }
 
 func (s *langSwitcher) Update() {
-	s.Keys = s.Keys[:0]
-	s.Keys = inpututil.AppendJustPressedKeys(s.Keys)
-	for _, k := range s.Keys {
+	s.keys = s.keys[:0]
+	s.keys = inpututil.AppendJustPressedKeys(s.keys)
+	for _, k := range s.keys {
 		if k == ebiten.KeyL {
-			s.CurrentLang = lang.Switch()
-			s.Alpha = 1
+			s.currentLang = lang.Switch()
+			s.alpha = 1
 			break
 		}
 	}
 
-	s.Alpha -= 0.01
-	if s.Alpha < 0 {
-		s.Alpha = 0
+	s.alpha -= 0.01
+	if s.alpha < 0 {
+		s.alpha = 0
 	}
 }
 
 func (s *langSwitcher) Draw(screen *ebiten.Image) {
-	if s.Alpha == 0 {
+	if s.alpha == 0 {
 		return
 	}
 
@@ -51,7 +51,7 @@ func (s *langSwitcher) Draw(screen *ebiten.Image) {
 	}
 
 	v := ebiten.Vertex{
-		ColorA: s.Alpha,
+		ColorA: s.alpha,
 	}
 	vertices := make([]ebiten.Vertex, 4)
 	v.DstX = float32(topLeft.X)
@@ -74,6 +74,6 @@ func (s *langSwitcher) Draw(screen *ebiten.Image) {
 
 	topt := ebiten.DrawImageOptions{}
 	topt.GeoM.Translate(0, 592)
-	topt.ColorScale.Scale(s.Alpha, s.Alpha, s.Alpha, s.Alpha)
-	drawing.DrawText(screen, fmt.Sprintf("Current Language: %s", s.CurrentLang), 16, &topt)
+	topt.ColorScale.Scale(s.alpha, s.alpha, s.alpha, s.alpha)
+	drawing.DrawText(screen, fmt.Sprintf("Current Language: %s", s.currentLang), 16, &topt)
 }
