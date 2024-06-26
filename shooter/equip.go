@@ -426,7 +426,7 @@ func (h *HarakiriSystem) IsLiving() bool {
 func (h *HarakiriSystem) HitProcess(targets []Target) geom.Circle {
 	destroyed := h.hitTest(targets)
 	if destroyed {
-		return geom.Circle{Center: h.Hit.Center, Radius: float64(h.Power)}
+		return geom.Circle{Center: h.Hit.Center, Radius: float64(h.Power) * 0.5}
 	}
 
 	if h.WaitToAim > 0 {
