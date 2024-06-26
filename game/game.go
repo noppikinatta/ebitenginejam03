@@ -22,6 +22,7 @@ func NewGame() *Game {
 	battle := battle.NewBattleScene(resulter)
 
 	scenes := scene.NewContainer(prologue, negotiation, battle)
+	scenes.Handlers = append(scenes.Handlers, &scene.LongPressResetHandler{Key: ebiten.KeyR, WaitUntilReset: 120})
 
 	scenes.AddTransition(battle, prologue)
 
