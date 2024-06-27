@@ -33,7 +33,7 @@ equip-4-barrier-desc, {{.Durability}}回攻撃を防ぐ　壊れても{{.Interva
 equip-5-armor, 増加装甲
 equip-5-armor-desc, 宇宙要塞の初期HPを{{.Armor}}増加させる
 equip-6-exhaust, 排熱孔
-equip-6-exhaust-desc, 受けるダメージを{{.Multiplier}}倍してしまう
+equip-6-exhaust-desc, 伝統的な弱点　受けるダメージを{{.Multiplier}}倍してしまうが、隣の装備を強化する
 equip-7-stonehenge, ストーンヘンジ
 equip-7-stonehenge-desc, 巨石を{{.Value}}個組み合わせた構造物　夏至がわかる
 equip-8-sushibar, スシ・バー

@@ -17,7 +17,7 @@ manager-3-perk-1, Increases the performance of proposed equipment
 manager-3-perk-2, Makes proposals spin rapidly
 vendors-title, The Totally Reliable Vendors:
 vendor-1, Samurai Avionics
-vendor-1-desc, Develops cannons and missiles. Proposes weapons embodying the spirit of the samurai whenever possible.
+vendor-1-desc, Develops cannons and missiles.\nProposes weapons embodying the spirit of the samurai whenever possible.
 vendor-2, Salamis Industry
 vendor-2-desc, Develops barriers and armor. Has a penchant for creating thermal exhaust ports.
 vendor-3, Cultural Victory Co.
@@ -33,7 +33,7 @@ equip-4-barrier-desc, Blocks {{.Durability}} attacks and regenerates after {{.In
 equip-5-armor, Additional Armor
 equip-5-armor-desc, Increases the initial HP of the space fortress by {{.Armor}}
 equip-6-exhaust, Exhaust Port
-equip-6-exhaust-desc, Multiplies incoming damage by {{.Multiplier}}
+equip-6-exhaust-desc, "A traditional weak point.\nMultiplies incoming damage by {{.Multiplier}}, but enhances adjacent equipment."
 equip-7-stonehenge, Stonehenge
 equip-7-stonehenge-desc, A structure composed of {{.Value}} megaliths that can determine the summer solstice
 equip-8-sushibar, Sushi Bar
