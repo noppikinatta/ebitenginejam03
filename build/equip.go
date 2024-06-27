@@ -40,7 +40,7 @@ func createBuilders() map[string]builder {
 			LastFrames: 200,
 			Interval:   300,
 			Width:      24,
-			Power:      10,
+			Power:      8,
 		},
 		name.TextKeyEquip2Missile: &missileBuilder{
 			Interval:       90,
@@ -56,7 +56,7 @@ func createBuilders() map[string]builder {
 			Interval:       300,
 			MaxCount:       1,
 			HitRadius:      16,
-			FirstSpeed:     8,
+			FirstSpeed:     6,
 			Power:          300,
 			MaxSanity:      3,
 			AimingInterval: 120,
@@ -283,7 +283,7 @@ func (b *armorPlatebuilder) Build(ship *shooter.MyShip, improvedCount int) {
 }
 
 func (b *armorPlatebuilder) calcedAdditionalArmor(improvedCount int) int {
-	return improve(b.AdditinalArmor, 2, improvedCount)
+	return improve(b.AdditinalArmor, 1.2, improvedCount)
 }
 
 func (b *armorPlatebuilder) TemplateData(improvedCount int) map[string]any {

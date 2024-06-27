@@ -88,9 +88,9 @@ func (n *Negotiation) improveBeside() {
 		prev := i - 1
 		if prev >= 0 {
 			prevE := n.ApprovedEquips[prev]
-			if !prevE.ImprovedByExhaustPort {
+			if !prevE.ImprovedByNext {
 				prevE.ImprovedCount++
-				prevE.ImprovedByExhaustPort = true
+				prevE.ImprovedByNext = true
 			}
 			n.ApprovedEquips[prev] = prevE
 		}
@@ -98,9 +98,9 @@ func (n *Negotiation) improveBeside() {
 		next := i + 1
 		if next < len(n.ApprovedEquips) {
 			nextE := n.ApprovedEquips[next]
-			if nextE.ImprovedByExhaustPort {
+			if !nextE.ImprovedByPrev {
 				nextE.ImprovedCount++
-				nextE.ImprovedByExhaustPort = true
+				nextE.ImprovedByPrev = true
 			}
 			n.ApprovedEquips[next] = nextE
 		}
