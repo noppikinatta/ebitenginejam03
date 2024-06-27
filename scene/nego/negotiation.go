@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/noppikinatta/ebitenginejam03/build"
+	"github.com/noppikinatta/ebitenginejam03/data"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/lang"
@@ -127,13 +128,13 @@ func (s *negotiationGameScene) drawRect(screen *ebiten.Image, topLeft, bottomRig
 }
 
 func (s *negotiationGameScene) drawBackground(screen *ebiten.Image) {
-	screen.Fill(color.Gray{Y: 96})
+	screen.Fill(color.Gray{Y: 24})
 
 	v := ebiten.Vertex{
 		ColorR: 0,
 		ColorG: 0,
 		ColorB: 0,
-		ColorA: 0.25,
+		ColorA: 1,
 	}
 
 	topLeft := geom.PointF{
@@ -179,91 +180,69 @@ func (s *negotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
 		y := itemHeight * float64(i)
 
 		opt := ebiten.DrawImageOptions{}
-		opt.GeoM.Translate(topLeft.X+equipNameLeft, topLeft.Y+y)
+		opt.GeoM.Translate(topLeft.X, topLeft.Y+y)
+
+		img := drawing.Image(name.ImgKey(e.Name))
+		screen.DrawImage(img, &opt)
+		opt.GeoM.Translate(equipNameLeft, 8)
 
 		name := lang.Text(e.Name)
 		if e.ImprovedCount > 0 {
 			name += fmt.Sprintf("+%d", e.ImprovedCount)
 		}
-
 		drawing.DrawText(screen, name, 12, &opt)
 	}
 }
 
 func (s *negotiationGameScene) drawMoney(screen *ebiten.Image) {
 	s.moneyDrawer.Draw(screen)
+	coinImg := drawing.Image(name.ImgKeyCoin)
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(4, 4)
+	screen.DrawImage(coinImg, &opt)
 }
 
 func (s *negotiationGameScene) drawVendors(screen *ebiten.Image) {
-	size := geom.PointF{X: 128, Y: 128}
-
-	vert := ebiten.Vertex{
-		ColorR: 1,
-		ColorG: 1,
-		ColorB: 0,
-		ColorA: 0.25,
-	}
-
 	for i, v := range s.Negotiation.VendorSelector.Vendors() {
+		img := drawing.Image(name.ImgKey(v.Name))
+		imgSize := geom.PointFFromPoint(img.Bounds().Size())
+
 		bottomCenter := s.Negotiation.ProposalStartPosition(i)
 		bottomCenter = bottomCenter.Add(s.StagePos)
-		topLeft := geom.PointF{
-			X: bottomCenter.X - 0.5*size.X,
-			Y: bottomCenter.Y - size.Y,
-		}
 
-		bottomRight := geom.PointF{
-			X: bottomCenter.X + 0.5*size.X,
-			Y: bottomCenter.Y,
-		}
+		opt := ebiten.DrawImageOptions{}
+		opt.GeoM.Translate(bottomCenter.X, bottomCenter.Y-24)
+		opt.GeoM.Translate(-imgSize.X*0.5, -imgSize.Y)
+		opt.ColorScale = data.ColorTheme(v.Name)
+		opt.ColorScale.ScaleAlpha(0.5)
 
-		s.drawRect(screen, topLeft, bottomRight, vert)
+		screen.DrawImage(img, &opt)
 
-		iopt := ebiten.DrawImageOptions{}
-		iopt.GeoM.Translate(topLeft.X, bottomRight.Y-20)
-		drawing.DrawTextByKey(screen, v.Name, 12, &iopt)
+		opt.GeoM.Translate(0, imgSize.Y)
+		opt.ColorScale = ebiten.ColorScale{}
+		drawing.DrawTextByKey(screen, v.Name, 12, &opt)
 	}
 }
 
 func (s *negotiationGameScene) drawManagers(screen *ebiten.Image) {
-	size := geom.PointF{X: 128, Y: 128}
-	idxs := []uint16{0, 1, 2, 0, 2, 3}
-
 	mY := s.Negotiation.ManagerY()
 	for i, m := range s.Negotiation.Managers {
+		img := drawing.Image(name.ImgKey(m.Name))
+		imgSize := geom.PointFFromPoint(img.Bounds().Size())
+
 		mL, mR := s.Negotiation.ManagerXLeftRight(i)
 		center := geom.PointF{X: (mL + mR) / 2, Y: mY}
 		center = center.Add(s.StagePos)
 
-		v := ebiten.Vertex{
-			ColorR: 0.4,
-			ColorG: 0.7,
-			ColorB: 0.5,
-			ColorA: 1,
-		}
+		opt := ebiten.DrawImageOptions{}
+		opt.GeoM.Translate(center.X-imgSize.X*0.5, center.Y-imgSize.Y*0.5)
+		opt.ColorScale = data.ColorTheme(m.Name)
+		opt.ColorScale.ScaleAlpha(0.5)
+		screen.DrawImage(img, &opt)
 
-		vertices := make([]ebiten.Vertex, 4)
-		v.DstX = float32(center.X - 0.5*size.X)
-		v.DstY = float32(center.Y - 0.5*size.Y)
-		vertices[0] = v
-		v.DstX = float32(center.X - 0.5*size.X)
-		v.DstY = float32(center.Y + 0.5*size.Y)
-		vertices[1] = v
-		v.DstX = float32(center.X + 0.5*size.X)
-		v.DstY = float32(center.Y + 0.5*size.Y)
-		vertices[2] = v
-		v.DstX = float32(center.X + 0.5*size.X)
-		v.DstY = float32(center.Y - 0.5*size.Y)
-		vertices[3] = v
-
-		topt := ebiten.DrawTrianglesOptions{
-			Address: ebiten.AddressRepeat,
-		}
-		screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
-
-		iopt := ebiten.DrawImageOptions{}
-		iopt.GeoM.Translate(float64(vertices[1].DstX), float64(vertices[1].DstY)-20)
-		drawing.DrawTextByKey(screen, m.Name, 12, &iopt)
+		opt.ColorScale = ebiten.ColorScale{}
+		opt.GeoM.Translate(0, imgSize.Y)
+		drawing.DrawTextByKey(screen, m.Name, 12, &opt)
 	}
 }
 
@@ -288,47 +267,22 @@ func (s *negotiationGameScene) drawDecisionMaker(screen *ebiten.Image) {
 }
 
 func (s *negotiationGameScene) drawProposals(screen *ebiten.Image) {
-	idxs := []uint16{0, 1, 2, 0, 2, 3}
-
 	for _, p := range s.Negotiation.Proposals {
+		img := drawing.Image(p.ImageName())
+		imgSize := geom.PointFFromPoint(img.Bounds().Size())
+
 		hit := p.Hit
 
 		gm := ebiten.GeoM{}
+		gm.Translate(-imgSize.X*0.5, -imgSize.Y*0.5)
 		gm.Rotate(p.Rotate)
 		gm.Translate(hit.Center.X, hit.Center.Y)
 		gm.Translate(s.StagePos.X, s.StagePos.Y)
-		var x, y float64
-		v := ebiten.Vertex{
-			ColorR: 0.5,
-			ColorG: 0.5,
-			ColorB: 0.7,
-			ColorA: 1,
-		}
 
-		vertices := make([]ebiten.Vertex, 4)
-		x, y = gm.Apply(-hit.Radius, -hit.Radius)
-		v.DstX = float32(x)
-		v.DstY = float32(y)
-		vertices[0] = v
-		x, y = gm.Apply(-hit.Radius, hit.Radius)
-		v.DstX = float32(x)
-		v.DstY = float32(y)
-		vertices[1] = v
-		x, y = gm.Apply(hit.Radius, hit.Radius)
-		v.DstX = float32(x)
-		v.DstY = float32(y)
-		vertices[2] = v
-		x, y = gm.Apply(hit.Radius, -hit.Radius)
-		v.DstX = float32(x)
-		v.DstY = float32(y)
-		vertices[3] = v
+		opt := ebiten.DrawImageOptions{}
+		opt.GeoM = gm
 
-		topt := ebiten.DrawTrianglesOptions{}
-		screen.DrawTriangles(vertices, idxs, drawing.WhitePixel, &topt)
-
-		iopt := ebiten.DrawImageOptions{}
-		iopt.GeoM.Translate(float64(vertices[0].DstX), float64(vertices[0].DstY))
-		drawing.DrawText(screen, p.ImageName(), 12, &iopt)
+		screen.DrawImage(img, &opt)
 	}
 }
 
@@ -349,8 +303,16 @@ func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
 	v := ebiten.Vertex{
 		ColorR: 0,
 		ColorG: 0,
-		ColorB: 1,
-		ColorA: 0.5,
+		ColorB: 0,
+		ColorA: 0.75,
+	}
+
+	if s.Negotiation.LastSelectedVendor != nil {
+		vendor := s.Negotiation.LastSelectedVendor
+		cs := data.ColorTheme(vendor.Name)
+		v.ColorR = cs.R() * v.ColorA
+		v.ColorG = cs.G() * v.ColorA
+		v.ColorB = cs.B() * v.ColorA
 	}
 
 	startPos := s.Negotiation.ProposalDelay.Hit.Center.Add(s.StagePos)
@@ -379,9 +341,30 @@ func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
 	s.drawRect(screen, baloonTopLeft, baloonBottomRight, v)
 
 	iopt := ebiten.DrawImageOptions{}
-	iopt.GeoM.Translate(baloonTopLeft.X+equipNameLeft, baloonTopLeft.Y+equipNameTop)
+	iopt.GeoM.Translate(baloonTopLeft.X, baloonTopLeft.Y)
+	img := drawing.Image(s.Negotiation.ProposalDelay.ImageName())
+	screen.DrawImage(img, &iopt)
+
+	iopt.GeoM.Translate(equipNameLeft, equipNameTop)
 	eqpName := s.Negotiation.ProposalDelay.Equip.Name
 	drawing.DrawTextByKey(screen, eqpName, 14, &iopt)
+
+	coinImg := drawing.Image(name.ImgKeyCoin)
+	coinImgSize := geom.PointFFromPoint(coinImg.Bounds().Size())
+	coinGm := ebiten.GeoM{}
+	coinGm.Translate(-coinImgSize.X*0.5, -coinImgSize.Y*0.5)
+	coinGm.Scale(0.5, 0.5)
+	coinGm.Translate(0, coinImgSize.Y*0.25)
+
+	copt := iopt
+	copt.GeoM.Translate(200, 4)
+	coinGm.Concat(copt.GeoM)
+	copt.GeoM = coinGm
+	screen.DrawImage(coinImg, &copt)
+
+	copt = iopt
+	copt.GeoM.Translate(200+coinImgSize.X*0.5, 4)
+	drawing.DrawText(screen, fmt.Sprint(s.Negotiation.ProposalDelay.Cost), 12, &copt)
 
 	iopt.GeoM.Translate(0, float64(equipDescTop))
 	eqpDesc := name.DescKey(eqpName)
@@ -470,7 +453,7 @@ func createManagers() []*nego.Manager {
 	mm = append(mm, nego.NewManager(
 		name.TextKeyManager2,
 		&nego.ProposalProcessorReduceCost{Multiplier: 0.8},
-		&nego.ProposalProcessorCustomImageName{ImageName: name.EquipImageGolf}))
+		&nego.ProposalProcessorCustomImageName{ImageName: name.ImgKeyGolf}))
 	mm = append(mm, nego.NewManager(
 		name.TextKeyManager3,
 		&nego.ProposalProcessorRotate{Value: 0.25},

@@ -5,14 +5,15 @@ import (
 )
 
 type Negotiation struct {
-	Size           geom.PointF
-	DecisionMaker  *DecisionMaker
-	VendorSelector *VendorSelector
-	Managers       []*Manager
-	Money          int
-	ProposalDelay  *Proposal
-	Proposals      []*Proposal
-	ApprovedEquips []*Equip
+	Size               geom.PointF
+	DecisionMaker      *DecisionMaker
+	VendorSelector     *VendorSelector
+	LastSelectedVendor *Vendor
+	Managers           []*Manager
+	Money              int
+	ProposalDelay      *Proposal
+	Proposals          []*Proposal
+	ApprovedEquips     []*Equip
 }
 
 func (n *Negotiation) UpdateDecisionMaker(decisionMakerX float64) {
@@ -45,6 +46,7 @@ func (n *Negotiation) updateVendors() {
 	idx := n.VendorSelector.IndexOf(vendor)
 	pos := n.ProposalStartPosition(idx)
 
+	n.LastSelectedVendor = vendor
 	p := vendor.Propose(pos)
 	if n.ProposalDelay != nil {
 		n.Proposals = append(n.Proposals, n.ProposalDelay)

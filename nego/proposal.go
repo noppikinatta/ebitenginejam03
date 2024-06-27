@@ -2,6 +2,7 @@ package nego
 
 import (
 	"github.com/noppikinatta/ebitenginejam03/geom"
+	"github.com/noppikinatta/ebitenginejam03/name"
 )
 
 type Proposal struct {
@@ -18,7 +19,7 @@ func (p *Proposal) ImageName() string {
 	if len(p.CustomImageName) > 0 {
 		return p.CustomImageName
 	}
-	return p.Equip.Name
+	return name.ImgKey(p.Equip.Name)
 }
 
 func (p *Proposal) Clone() *Proposal {
