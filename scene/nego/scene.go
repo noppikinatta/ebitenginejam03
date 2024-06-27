@@ -11,6 +11,7 @@ func NewNegotiationScene() (scene.Scene, func() []*nego.Equip) {
 	s := scene.NewContainer(
 		negoScene,
 		scene.NewShowImageScene(15, newSpecDrawer(negoScene.Result)),
+		scene.NewShowImageScene(15, &prepareDrawer{}),
 	)
 
 	s.Handlers = append(s.Handlers, &scene.ResetHandler{Key: ebiten.KeyR})
