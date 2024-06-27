@@ -15,6 +15,7 @@ import (
 	"github.com/noppikinatta/ebitenginejam03/name"
 	"github.com/noppikinatta/ebitenginejam03/nego"
 	"github.com/noppikinatta/ebitenginejam03/random"
+	"github.com/noppikinatta/ebitenginejam03/scene"
 	"github.com/noppikinatta/ebitenginejam03/shooter"
 )
 
@@ -27,6 +28,8 @@ type battleGameScene struct {
 	explosionDrawer *explosionDrawer
 	hpDrawer        *drawing.GaugeDrawer
 	StagePos        geom.PointF
+	preprocess      scene.Scene
+	postprocess     scene.Scene
 }
 
 func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
@@ -41,6 +44,11 @@ func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
 	cmin.SetG(0.25)
 	cmin.SetB(0.25)
 
+	endScene := battleEndScene{
+		resultFn: s.Won,
+		frames:   60,
+	}
+
 	return &battleGameScene{
 		orderer:  orderer,
 		Stage:    &s,
@@ -53,6 +61,16 @@ func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
 			ColorScaleMax: cmax,
 			ColorScaleMin: cmin,
 		},
+		preprocess: scene.NewContainer(
+			scene.NewFadeIn(15),
+			scene.NewShowImageScene(0, &ruleDescriptionDrawer{}),
+			&scene.ScrollText{TextKey: name.TextKeyShooterTitle2},
+		),
+		postprocess: scene.NewContainer(
+			&endScene,
+			scene.NewShowImageScene(0, &endScene),
+			scene.NewFadeOut(30),
+		),
 	}
 }
 
@@ -65,7 +83,15 @@ func (s *battleGameScene) Update() error {
 	x, y := ebiten.CursorPosition()
 	cursorPos := geom.PointF{X: float64(x), Y: float64(y)}
 	cursorPos = cursorPos.Subtract(s.StagePos)
-	s.Stage.Update(cursorPos)
+	s.Stage.UpdateAngle(cursorPos)
+	if !s.preprocess.End() {
+		return s.preprocess.Update()
+	}
+	if s.Stage.End() {
+		s.updateMyshipExplosion()
+		return s.postprocess.Update()
+	}
+	s.Stage.UpdateOther()
 	s.explosionDrawer.Update()
 	s.hpDrawer.Current = s.Stage.MyShip.HP
 
@@ -188,6 +214,10 @@ func (s *battleGameScene) createVisibleEntities() []shooter.VisibleEntity {
 	return s.Stage.MyShip.VisibleEntities()
 }
 
+func (s *battleGameScene) updateMyshipExplosion() {
+
+}
+
 func (s *battleGameScene) Draw(screen *ebiten.Image) {
 	s.drawBackground(screen)
 	s.drawShipHP(screen)
@@ -196,6 +226,13 @@ func (s *battleGameScene) Draw(screen *ebiten.Image) {
 	s.drawEnemies(screen)
 	s.drawEnemyList(screen)
 	s.drawExplosions(screen)
+	s.drawMyshipExplosion(screen)
+	if !s.preprocess.End() {
+		s.preprocess.Draw(screen)
+	}
+	if s.Stage.End() && !s.postprocess.End() {
+		s.postprocess.Draw(screen)
+	}
 }
 
 func (s *battleGameScene) drawRect(screen *ebiten.Image, topLeft, bottomRight geom.PointF, colorVert ebiten.Vertex) {
@@ -254,6 +291,10 @@ func (s *battleGameScene) drawBackground(screen *ebiten.Image) {
 
 func (s *battleGameScene) drawShipHP(screen *ebiten.Image) {
 	s.hpDrawer.Draw(screen)
+
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(8, s.hpDrawer.TextOffset.Y)
+	drawing.DrawText(screen, "HP:", s.hpDrawer.FontSize, &opt)
 }
 
 func (s *battleGameScene) drawMyShip(screen *ebiten.Image) {
@@ -380,10 +421,29 @@ func (s *battleGameScene) drawExplosions(screen *ebiten.Image) {
 	s.explosionDrawer.Draw(screen)
 }
 
+func (s *battleGameScene) drawMyshipExplosion(screen *ebiten.Image) {
+
+}
+
 func (s *battleGameScene) End() bool {
-	return s.Stage.End()
+	return s.postprocess.End()
 }
 
 func (s *battleGameScene) Reset() {
+	s.preprocess.Reset()
+	s.postprocess.Reset()
 	s.initialized = false
+}
+
+type ruleDescriptionDrawer struct {
+}
+
+func (d *ruleDescriptionDrawer) Draw(screen *ebiten.Image) {
+	size := screen.Bounds().Size()
+	clr := color.RGBA{A: 128}
+	vector.DrawFilledRect(screen, 0, 0, float32(size.X), float32(size.Y), clr, false)
+
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(24, 240)
+	drawing.DrawTextByKey(screen, name.TextKeyShooterDesc1, 18, &opt)
 }

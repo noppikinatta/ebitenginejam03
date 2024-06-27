@@ -12,9 +12,12 @@ type Stage struct {
 	HitTest       *HitTest
 }
 
-func (s *Stage) Update(cursorPos geom.PointF) {
+func (s *Stage) UpdateAngle(cursorPos geom.PointF) {
 	angle := s.calcAngle(cursorPos)
 	s.updateMyShipAngle(angle)
+}
+
+func (s *Stage) UpdateOther() {
 	s.updateMyShip()
 	s.updateEnemies()
 	s.updateHitTest()

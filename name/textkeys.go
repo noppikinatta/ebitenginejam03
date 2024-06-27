@@ -42,6 +42,7 @@ const (
 	TextKeyShooterResult2         = "shooter-result-2"
 	TextKeyShooterResult2Epilogue = "shooter-result-2-epilogue"
 	TextKeyShooterTitle1          = "shooter-title-1"
+	TextKeyShooterTitle2          = "shooter-title-2"
 	TextKeyStory1                 = "story-1"
 	TextKeyStory2                 = "story-2"
 	TextKeyStory3                 = "story-3"
