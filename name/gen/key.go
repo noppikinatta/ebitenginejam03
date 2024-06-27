@@ -13,28 +13,43 @@ import (
 //go:generate go fmt ../...
 
 func main() {
+	generateTextKeys()
+	generateImageKeys()
+}
+
+func generateTextKeys() {
 	langs := asset.LoadTemplates()
 	english := langs["english"]
 
+	generateKeys("text", english)
+}
+
+func generateImageKeys() {
+	imgs := asset.Images()
+	generateKeys("img", imgs)
+}
+
+func generateKeys[T any](prefix string, data map[string]T) {
 	buf := strings.Builder{}
 
 	buf.WriteString("package name\n")
 	buf.WriteString("const (\n")
 
-	kk := make([]string, 0, len(english))
-	for k := range english {
+	kk := make([]string, 0, len(data))
+	for k := range data {
 		kk = append(kk, k)
 	}
 	sort.Strings(kk)
 
+	prefixTitle := title(prefix)
 	for _, k := range kk {
-		s := fmt.Sprintf("TextKey%s = \"%s\"", varName(k), k)
+		s := fmt.Sprintf("%sKey%s = \"%s\"", prefixTitle, varName(k), k)
 		buf.WriteString(s)
 		buf.WriteString("\n")
 	}
 
 	buf.WriteString(")\n")
-	out := "../textkeys.go"
+	out := fmt.Sprintf("../%skeys.go", prefix)
 	os.WriteFile(out, []byte(buf.String()), 0644)
 }
 
@@ -46,9 +61,19 @@ func varName(key string) string {
 		if len(s) == 0 {
 			continue
 		}
-		buf.WriteString(strings.ToUpper(s[:1]))
-		buf.WriteString(s[1:])
+		buf.WriteString(title(s))
 	}
 
 	return buf.String()
+}
+
+func title(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	if len(s) == 1 {
+		return strings.ToUpper(s)
+	}
+
+	return strings.ToUpper(s[:1]) + s[1:]
 }

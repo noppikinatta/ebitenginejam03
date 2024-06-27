@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/noppikinatta/ebitenginejam03/asset"
+	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/lang"
 )
 
@@ -17,6 +18,13 @@ func DrawTextTemplate(screen *ebiten.Image, key string, data map[string]any, fon
 func DrawTextByKey(screen *ebiten.Image, key string, fontSize float64, opt *ebiten.DrawImageOptions) {
 	txt := lang.Text(key)
 	DrawText(screen, txt, fontSize, opt)
+}
+
+func MeasureText(txt string, fontSize float64) geom.PointF {
+	txtImg := textImage(txt, fontSize)
+	pointI := txtImg.Bounds().Size()
+
+	return geom.PointFFromPoint(pointI)
 }
 
 func DrawText(screen *ebiten.Image, txt string, fontSize float64, opt *ebiten.DrawImageOptions) {
@@ -45,6 +53,9 @@ func textImage(txt string, fontSize float64) *ebiten.Image {
 	opt = text.DrawOptions{}
 	opt.LineSpacing = lineSpacing
 	text.Draw(img, txt, face, &opt)
+	if textCache == nil {
+		textCache = make(map[textKey]*ebiten.Image)
+	}
 	textCache[k] = img
 	return img
 }
@@ -57,5 +68,7 @@ type textKey struct {
 var textCache map[textKey]*ebiten.Image
 
 func init() {
-	textCache = make(map[textKey]*ebiten.Image)
+	if textCache == nil {
+		textCache = make(map[textKey]*ebiten.Image)
+	}
 }
