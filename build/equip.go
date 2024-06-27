@@ -70,7 +70,7 @@ func createBuilders() map[string]builder {
 			AdditinalArmor: 2000,
 		},
 		name.TextKeyEquip6Exhaust: &exhaustPortbuilder{
-			HitRadius:  8,
+			HitRadius:  16,
 			Multiplier: 10,
 		},
 		name.TextKeyEquip7Stonehenge: &uselessBuilder{

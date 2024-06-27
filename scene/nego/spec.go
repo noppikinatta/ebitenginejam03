@@ -35,7 +35,7 @@ func (d *specDrawer) Draw(screen *ebiten.Image) {
 
 func (d *specDrawer) drawTitle(screen *ebiten.Image) {
 	opt := ebiten.DrawImageOptions{}
-	opt.GeoM.Translate(4, 4)
+	opt.GeoM.Translate(8, 4)
 
 	drawing.DrawTextByKey(screen, name.TextKeyNegotiationTitle3, 20, &opt)
 }
@@ -84,7 +84,7 @@ func (d *specDrawer) drawEquips(screen *ebiten.Image) {
 		iopt.GeoM.Translate(0, (itemHeight-imgSize.Y)*0.5)
 		screen.DrawImage(img, &iopt)
 
-		opt.GeoM.Translate(textX, 8)
+		opt.GeoM.Translate(textX, 4)
 		eqpName := lang.Text(e.Name)
 		if e.ImprovedCount > 0 {
 			eqpName += fmt.Sprintf("+%d", e.ImprovedCount)

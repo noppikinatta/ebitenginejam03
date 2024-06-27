@@ -1,6 +1,7 @@
 package nego
 
 type Equip struct {
-	Name          string
-	ImprovedCount int
+	Name                  string
+	ImprovedCount         int
+	ImprovedByExhaustPort bool
 }

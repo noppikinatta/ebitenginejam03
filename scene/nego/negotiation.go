@@ -435,7 +435,7 @@ func createProposals() map[string]*nego.Proposal {
 	addEquip(name.TextKeyEquip3Harakiri, 1500)
 	addEquip(name.TextKeyEquip4Barrier, 1000)
 	addEquip(name.TextKeyEquip5Armor, 1000)
-	addEquip(name.TextKeyEquip6Exhaust, 500)
+	addEquip(name.TextKeyEquip6Exhaust, 1000)
 	addEquip(name.TextKeyEquip7Stonehenge, 1000)
 	addEquip(name.TextKeyEquip8Sushibar, 1000)
 	addEquip(name.TextKeyEquip9Operahouse, 3000)

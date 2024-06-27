@@ -2,6 +2,7 @@ package nego
 
 import (
 	"github.com/noppikinatta/ebitenginejam03/geom"
+	"github.com/noppikinatta/ebitenginejam03/name"
 )
 
 type Negotiation struct {
@@ -71,8 +72,39 @@ func (n *Negotiation) updateProposals() {
 				n.Money = 0
 			}
 			n.ApprovedEquips = append(n.ApprovedEquips, p.Equip)
+			if p.Equip.Name == name.TextKeyEquip6Exhaust {
+				n.improveBeside()
+			}
 		},
 	)
+}
+
+func (n *Negotiation) improveBeside() {
+	for i, e := range n.ApprovedEquips {
+		if e.Name != name.TextKeyEquip6Exhaust {
+			continue
+		}
+
+		prev := i - 1
+		if prev >= 0 {
+			prevE := n.ApprovedEquips[prev]
+			if !prevE.ImprovedByExhaustPort {
+				prevE.ImprovedCount++
+				prevE.ImprovedByExhaustPort = true
+			}
+			n.ApprovedEquips[prev] = prevE
+		}
+
+		next := i + 1
+		if next < len(n.ApprovedEquips) {
+			nextE := n.ApprovedEquips[next]
+			if nextE.ImprovedByExhaustPort {
+				nextE.ImprovedCount++
+				nextE.ImprovedByExhaustPort = true
+			}
+			n.ApprovedEquips[next] = nextE
+		}
+	}
 }
 
 func (n *Negotiation) updateProposal(proposal *Proposal) (*Proposal, bool) {
