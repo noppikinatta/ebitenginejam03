@@ -1,6 +1,9 @@
 package geom
 
-import "math"
+import (
+	"image"
+	"math"
+)
 
 type PointF struct {
 	X, Y float64
@@ -50,4 +53,11 @@ func PointFFromPolar(abs float64, angleRad float64) PointF {
 	y := abs * math.Sin(angleRad)
 
 	return PointF{X: x, Y: y}
+}
+
+func PointFFromPoint(p image.Point) PointF {
+	return PointF{
+		X: float64(p.X),
+		Y: float64(p.Y),
+	}
 }
