@@ -60,11 +60,11 @@ func (d *specDrawer) drawEquips(screen *ebiten.Image) {
 		if i%2 == 0 {
 			tl := geom.PointF{
 				X: 0,
-				Y: baseXOffset + (float64(i) * itemHeight),
+				Y: baseYOffset + (float64(i) * itemHeight),
 			}
 			br := geom.PointF{
-				X: 0,
-				Y: baseXOffset + (float64(i+1) * itemHeight),
+				X: float64(screen.Bounds().Max.X),
+				Y: baseYOffset + (float64(i+1) * itemHeight),
 			}
 
 			cv := ebiten.Vertex{
@@ -74,11 +74,17 @@ func (d *specDrawer) drawEquips(screen *ebiten.Image) {
 			d.drawRect(screen, tl, br, cv)
 		}
 
+		img := drawing.Image(name.ImgKey(e.Name))
+		imgSize := geom.PointFFromPoint(img.Bounds().Size())
+
 		opt := ebiten.DrawImageOptions{}
+		opt.GeoM.Translate(baseXOffset, baseYOffset+(float64(i)*itemHeight))
 
-		textY := baseYOffset + 8 + (float64(i) * itemHeight)
+		iopt := opt
+		iopt.GeoM.Translate(0, (itemHeight-imgSize.Y)*0.5)
+		screen.DrawImage(img, &iopt)
 
-		opt.GeoM.Translate(textX, textY)
+		opt.GeoM.Translate(textX, 8)
 		eqpName := lang.Text(e.Name)
 		if e.ImprovedCount > 0 {
 			eqpName += fmt.Sprintf("+%d", e.ImprovedCount)
