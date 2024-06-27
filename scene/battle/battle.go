@@ -220,13 +220,13 @@ func (s *battleGameScene) updateMyshipExplosion() {
 
 func (s *battleGameScene) Draw(screen *ebiten.Image) {
 	s.drawBackground(screen)
-	s.drawShipHP(screen)
 	s.drawMyShip(screen)
 	s.drawVisibleEntities(screen)
 	s.drawEnemies(screen)
-	s.drawEnemyList(screen)
 	s.drawExplosions(screen)
 	s.drawMyshipExplosion(screen)
+	s.drawShipHP(screen)
+	s.drawEnemyList(screen)
 	if !s.preprocess.End() {
 		s.preprocess.Draw(screen)
 	}
@@ -267,7 +267,7 @@ func (s *battleGameScene) drawCircle(screen *ebiten.Image, circle geom.Circle, f
 }
 
 func (s *battleGameScene) drawBackground(screen *ebiten.Image) {
-	screen.Fill(color.Gray{Y: 48})
+	screen.Fill(color.Gray{Y: 24})
 
 	v := ebiten.Vertex{
 		ColorR: 0,
@@ -290,6 +290,13 @@ func (s *battleGameScene) drawBackground(screen *ebiten.Image) {
 }
 
 func (s *battleGameScene) drawShipHP(screen *ebiten.Image) {
+	v := ebiten.Vertex{}
+	gray := float32(24) / float32(255)
+	v.ColorR = gray
+	v.ColorG = gray
+	v.ColorB = gray
+	v.ColorA = 1
+	s.drawRect(screen, s.hpDrawer.TopLeft, s.hpDrawer.BottomRight, v)
 	s.hpDrawer.Draw(screen)
 
 	opt := ebiten.DrawImageOptions{}
@@ -381,6 +388,15 @@ func (s *battleGameScene) drawEnemyList(screen *ebiten.Image) {
 		rowSize    float64 = 40
 		clmCount           = 5
 	)
+
+	v := ebiten.Vertex{}
+	gray := float32(24) / float32(255)
+	v.ColorR = gray
+	v.ColorG = gray
+	v.ColorB = gray
+	v.ColorA = 1
+	screenSize := geom.PointFFromPoint(screen.Bounds().Size())
+	s.drawRect(screen, geom.PointF{X: leftOffset}, screenSize, v)
 
 	for i, e := range s.Stage.EnemyLauncher.Enemies {
 		if e.State == shooter.EnemyStateDead {
