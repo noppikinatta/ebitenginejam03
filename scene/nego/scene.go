@@ -9,7 +9,6 @@ import (
 func NewNegotiationScene() (scene.Scene, func() []*nego.Equip) {
 	negoScene := newNegotiationGameScene()
 	s := scene.NewContainer(
-		scene.NewFadeIn(15),
 		negoScene,
 		scene.NewShowImageScene(15, newSpecDrawer(negoScene.Result)),
 	)

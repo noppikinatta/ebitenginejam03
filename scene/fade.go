@@ -31,6 +31,10 @@ func (f *FadeIn) Draw(target *ebiten.Image) {
 }
 
 func (f *FadeIn) alpha() float32 {
+	if f.frames == 0 {
+		return 0
+	}
+
 	a := 1.0 - float32(f.current)/float32(f.frames)
 	if a < 0 {
 		a = 0
@@ -57,6 +61,10 @@ func (f *FadeOut) Draw(screen *ebiten.Image) {
 }
 
 func (f *FadeOut) alpha() float32 {
+	if f.frames == 0 {
+		return 0
+	}
+
 	a := float32(f.current) / float32(f.frames)
 	if a > 1 {
 		a = 1
@@ -117,5 +125,8 @@ func (f *fade) updateCache(size image.Point) {
 }
 
 func (f *fade) End() bool {
+	if f.frames == 0 {
+		return true
+	}
 	return f.current > f.frames
 }

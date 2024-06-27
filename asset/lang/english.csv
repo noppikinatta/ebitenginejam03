@@ -43,7 +43,7 @@ equip-9-operahouse-desc, A large theater with a capacity of {{.Value}} people
 negotiation-title-1, Negotiations Begin
 negotiation-title-2, Negotiations End
 negotiation-title-3, Performance Specifications
-negotiation-desc-1, Vendor proposals will come up from the bottom of the screen via the middle managers. Use mouse movements to operate the bar at the top of the screen and pass through the equipment you want to accept. The negotiation ends when you run out of money.
+negotiation-desc-1, Vendor proposals will come up\nfrom the bottom of the screen via the middle managers.\nUse mouse movements to operate the bar at the top of the screen\nand pass through the equipment you want to accept.\nThe negotiation ends when you run out of money.
 shooter-title-1, "And Now, the Battle Begins..."
 shooter-desc-1, Rotate the space fortress's equipment with mouse movements to annihilate the Rebel Army. The game ends when either the Rebel Army is annihilated or the space fortress's HP is depleted.
 shooter-result-1, Imperial Victory

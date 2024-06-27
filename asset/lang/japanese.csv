@@ -43,7 +43,7 @@ equip-9-operahouse-desc, 収容人数{{.Value}}人の大規模劇場
 negotiation-title-1, 交渉開始
 negotiation-title-2, 交渉終了
 negotiation-title-3, 性能諸元
-negotiation-desc-1, 画面下部からベンダーの提案が中間管理職経由で上がってきます。画面上部のバーをマウス移動で操作して、受け入れたい装備を通してください。資金がなくなると終了です。
+negotiation-desc-1, 画面下部からベンダーの提案が中間管理職経由で上がってきます。\n画面上部のバーをマウス移動で操作して、受け入れたい装備を通してください。\n資金がなくなると終了です。
 shooter-title-1, そして、戦いの時が来た...
 shooter-desc-1, 宇宙要塞の装備をマウス移動で回転させて、反乱軍を全滅させてください。反乱軍が全滅するか、宇宙要塞のHPがなくなると終了です。
 shooter-result-1, 帝国の勝利

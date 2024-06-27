@@ -15,8 +15,11 @@ type Negotiation struct {
 	ApprovedEquips []*Equip
 }
 
-func (n *Negotiation) Update(decisionMakerX float64) {
+func (n *Negotiation) UpdateDecisionMaker(decisionMakerX float64) {
 	n.updateDecisionMaker(decisionMakerX)
+}
+
+func (n *Negotiation) UpdateOthers() {
 	n.updateVendors()
 	n.updateProposals()
 }

@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/noppikinatta/ebitenginejam03/build"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
@@ -14,6 +15,7 @@ import (
 	"github.com/noppikinatta/ebitenginejam03/name"
 	"github.com/noppikinatta/ebitenginejam03/nego"
 	"github.com/noppikinatta/ebitenginejam03/random"
+	"github.com/noppikinatta/ebitenginejam03/scene"
 )
 
 type negotiationGameScene struct {
@@ -21,6 +23,8 @@ type negotiationGameScene struct {
 	StagePos    geom.PointF
 	equipDesc   *build.EquipDescriptor
 	moneyDrawer *drawing.GaugeDrawer
+	preprocess  scene.Scene
+	postprocess scene.Scene
 }
 
 func newNegotiationGameScene() *negotiationGameScene {
@@ -56,13 +60,29 @@ func newNegotiationGameScene() *negotiationGameScene {
 			ColorScaleMax: cmax,
 			ColorScaleMin: cmin,
 		},
+		preprocess: scene.NewContainer(
+			scene.NewFadeIn(15),
+			scene.NewShowImageScene(0, &ruleDescriptionDrawer{}),
+			&scene.ScrollText{TextKey: name.TextKeyNegotiationTitle1},
+		),
+		postprocess: scene.NewContainer(
+			&scene.ScrollText{TextKey: name.TextKeyNegotiationTitle2},
+			scene.NewFadeOut(15),
+		),
 	}
 }
 
 func (s *negotiationGameScene) Update() error {
 	x, _ := ebiten.CursorPosition()
 	x -= int(s.StagePos.X)
-	s.Negotiation.Update(float64(x))
+	s.Negotiation.UpdateDecisionMaker(float64(x))
+	if !s.preprocess.End() {
+		return s.preprocess.Update()
+	}
+	if s.Negotiation.End() {
+		return s.postprocess.Update()
+	}
+	s.Negotiation.UpdateOthers()
 	s.moneyDrawer.Current = s.Negotiation.Money
 	return nil
 }
@@ -76,6 +96,12 @@ func (s *negotiationGameScene) Draw(screen *ebiten.Image) {
 	s.drawDecisionMaker(screen)
 	s.drawProposals(screen)
 	s.drawProposalDelay(screen)
+	if !s.preprocess.End() {
+		s.preprocess.Draw(screen)
+	}
+	if s.Negotiation.End() && !s.postprocess.End() {
+		s.postprocess.Draw(screen)
+	}
 }
 
 func (s *negotiationGameScene) drawRect(screen *ebiten.Image, topLeft, bottomRight geom.PointF, colorVert ebiten.Vertex) {
@@ -364,11 +390,13 @@ func (s *negotiationGameScene) drawProposalDelay(screen *ebiten.Image) {
 }
 
 func (s *negotiationGameScene) End() bool {
-	return s.Negotiation.End()
+	return s.postprocess.End()
 }
 
 func (s *negotiationGameScene) Reset() {
+	s.preprocess.Reset()
 	s.Negotiation.Reset(10000)
+	s.postprocess.Reset()
 }
 
 func (s *negotiationGameScene) Result() []*nego.Equip {
@@ -449,4 +477,17 @@ func createManagers() []*nego.Manager {
 		&nego.ProposalProcessorImprove{}))
 
 	return mm
+}
+
+type ruleDescriptionDrawer struct {
+}
+
+func (d *ruleDescriptionDrawer) Draw(screen *ebiten.Image) {
+	size := screen.Bounds().Size()
+	clr := color.RGBA{A: 128}
+	vector.DrawFilledRect(screen, 0, 0, float32(size.X), float32(size.Y), clr, false)
+
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(24, 240)
+	drawing.DrawTextByKey(screen, name.TextKeyNegotiationDesc1, 18, &opt)
 }
