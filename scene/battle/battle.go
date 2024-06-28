@@ -30,6 +30,7 @@ type battleGameScene struct {
 	StagePos        geom.PointF
 	preprocess      scene.Scene
 	postprocess     scene.Scene
+	bgImg           *ebiten.Image
 }
 
 func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
@@ -71,6 +72,7 @@ func newBattleGameScene(orderer func() []*nego.Equip) *battleGameScene {
 			scene.NewShowImageScene(0, &endScene),
 			scene.NewFadeOut(30),
 		),
+		bgImg: CreateBG(int(s.Size.X), int(s.Size.Y)),
 	}
 }
 
@@ -271,24 +273,9 @@ func (s *battleGameScene) drawCircle(screen *ebiten.Image, circle geom.Circle, f
 func (s *battleGameScene) drawBackground(screen *ebiten.Image) {
 	screen.Fill(color.Gray{Y: 24})
 
-	v := ebiten.Vertex{
-		ColorR: 0,
-		ColorG: 0,
-		ColorB: 0,
-		ColorA: 0.5,
-	}
-
-	topLeft := geom.PointF{
-		X: s.StagePos.X,
-		Y: s.StagePos.Y,
-	}
-
-	bottomRight := geom.PointF{
-		X: s.StagePos.X + s.Stage.Size.X,
-		Y: s.StagePos.Y + s.Stage.Size.Y,
-	}
-
-	s.drawRect(screen, topLeft, bottomRight, v)
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(s.StagePos.X, s.StagePos.Y)
+	screen.DrawImage(s.bgImg, &opt)
 }
 
 func (s *battleGameScene) drawShipHP(screen *ebiten.Image) {
@@ -476,6 +463,6 @@ func (d *ruleDescriptionDrawer) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 0, 0, float32(size.X), float32(size.Y), clr, false)
 
 	opt := ebiten.DrawImageOptions{}
-	opt.GeoM.Translate(24, 240)
+	opt.GeoM.Translate(24, 280)
 	drawing.DrawTextByKey(screen, name.TextKeyShooterDesc1, 18, &opt)
 }
