@@ -8,6 +8,7 @@ import (
 	"github.com/noppikinatta/ebitenginejam03/scene/battle"
 	"github.com/noppikinatta/ebitenginejam03/scene/nego"
 	"github.com/noppikinatta/ebitenginejam03/scene/prologue"
+	"github.com/noppikinatta/ebitenginejam03/scene/title"
 )
 
 type Game struct {
@@ -16,15 +17,19 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	//title := title.NewTitleScene()
-	prologue := prologue.NewPrologueScene()
-	negotiation, resulter := nego.NewNegotiationScene()
-	battle := battle.NewBattleScene(resulter)
+	title := title.NewTitleScene()
+	prologueScene := prologue.NewPrologueScene()
+	negotiationScene, resulter := nego.NewNegotiationScene()
+	battleScene := battle.NewBattleScene(resulter)
 
-	scenes := scene.NewContainer(prologue, negotiation, battle)
+	scenes := scene.NewContainer(title, prologueScene, negotiationScene, battleScene)
 	scenes.Handlers = append(scenes.Handlers, &scene.LongPressResetHandler{Key: ebiten.KeyR, WaitUntilReset: 120})
 
-	scenes.AddTransition(battle, prologue)
+	scenes.AddTransition(battleScene, prologueScene)
+
+	// debug code
+	//battleScene = battle.NewBattleScene(OrderForTest)
+	//scenes = scene.NewContainer(battleScene)
 
 	g := Game{
 		scenes:       scenes,
@@ -56,7 +61,17 @@ func OrderForTest() []*negodomain.Equip {
 		eqps = append(eqps, e)
 	}
 
-	o(name.TextKeyEquip1Laser, 3)
+	improvedCount := 2
+
+	o(name.TextKeyEquip1Laser, improvedCount)
+	o(name.TextKeyEquip2Missile, improvedCount)
+	o(name.TextKeyEquip3Harakiri, improvedCount)
+	o(name.TextKeyEquip4Barrier, improvedCount)
+	o(name.TextKeyEquip5Armor, improvedCount)
+	o(name.TextKeyEquip6Exhaust, improvedCount)
+	o(name.TextKeyEquip7Stonehenge, improvedCount)
+	o(name.TextKeyEquip8Sushibar, improvedCount)
+	o(name.TextKeyEquip9Operahouse, improvedCount)
 
 	return eqps
 }
