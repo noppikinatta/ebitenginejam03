@@ -2,11 +2,13 @@ package battle
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
+	"github.com/noppikinatta/ebitenginejam03/name"
 	"github.com/noppikinatta/ebitenginejam03/shooter"
 )
 
@@ -93,41 +95,27 @@ func (d *missileDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity)
 		return
 	}
 
+	img := drawing.Image(name.ImgKeyEquip2Missile)
+	imgSize := geom.PointFFromPoint(img.Bounds().Size())
+
 	pos := entity.Position()
 
 	gm := ebiten.GeoM{}
-	gm.Rotate(entity.Angle())
+	gm.Translate(-imgSize.X*0.5, -imgSize.Y*0.5)
+	gm.Scale(0.5, 0.5)
+	gm.Rotate(entity.Angle() + 0.5*math.Pi)
 	gm.Translate(pos.X, pos.Y)
 	gm.Translate(d.StagePos.X, d.StagePos.Y)
-	var x, y float64
-	v := ebiten.Vertex{
-		ColorR: 0.2,
-		ColorG: 0.8,
-		ColorB: 0.6,
-		ColorA: 1,
-	}
 
-	vertices := make([]ebiten.Vertex, 3)
-	x, y = gm.Apply(d.Size*0.5, 0)
-	v.DstX = float32(x)
-	v.DstY = float32(y)
-	vertices[0] = v
-	x, y = gm.Apply(-d.Size*0.5, -d.Size*0.25)
-	v.DstX = float32(x)
-	v.DstY = float32(y)
-	vertices[1] = v
-	x, y = gm.Apply(-d.Size*0.5, d.Size*0.5)
-	v.DstX = float32(x)
-	v.DstY = float32(y)
-	vertices[2] = v
-
-	topt := ebiten.DrawTrianglesOptions{}
-	screen.DrawTriangles(vertices, []uint16{0, 1, 2}, drawing.WhitePixel, &topt)
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM = gm
+	screen.DrawImage(img, &opt)
 }
 
 type harakiriDrawer struct {
 	StagePos geom.PointF
 	Radius   float32
+	Rotate   float64
 }
 
 func (d *harakiriDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity) {
@@ -135,12 +123,19 @@ func (d *harakiriDrawer) Draw(screen *ebiten.Image, entity shooter.VisibleEntity
 		return
 	}
 
+	img := drawing.Image(name.ImgKeyEquip3Harakiri)
+	imgSize := geom.PointFFromPoint(img.Bounds().Size())
+
 	pos := entity.Position().Add(d.StagePos)
 
-	cx := float32(pos.X)
-	cy := float32(pos.Y)
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(-imgSize.X*0.5, -imgSize.Y*0.5)
+	opt.GeoM.Scale(0.5, 0.5)
+	opt.GeoM.Translate(0, -imgSize.Y*0.25)
+	opt.GeoM.Rotate(entity.Angle())
+	opt.GeoM.Translate(pos.X, pos.Y)
 
-	vector.DrawFilledCircle(screen, cx, cy, d.Radius, color.RGBA{R: 100, G: 200, A: 255}, true)
+	screen.DrawImage(img, &opt)
 }
 
 type barrierDrawer struct {

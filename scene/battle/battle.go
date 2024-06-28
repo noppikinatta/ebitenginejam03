@@ -80,10 +80,12 @@ func (s *battleGameScene) Update() error {
 		s.initialized = true
 	}
 
-	x, y := ebiten.CursorPosition()
-	cursorPos := geom.PointF{X: float64(x), Y: float64(y)}
-	cursorPos = cursorPos.Subtract(s.StagePos)
-	s.Stage.UpdateAngle(cursorPos)
+	if !s.Stage.End() {
+		x, y := ebiten.CursorPosition()
+		cursorPos := geom.PointF{X: float64(x), Y: float64(y)}
+		cursorPos = cursorPos.Subtract(s.StagePos)
+		s.Stage.UpdateAngle(cursorPos)
+	}
 	if !s.preprocess.End() {
 		return s.preprocess.Update()
 	}
@@ -314,7 +316,6 @@ func (s *battleGameScene) drawMyShip(screen *ebiten.Image) {
 	shipImgSize := geom.PointFFromPoint(shipImg.Bounds().Size())
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(-shipImgSize.X*0.5, -shipImgSize.Y*0.5)
-	opt.GeoM.Rotate(s.Stage.MyShip.Angle)
 	opt.GeoM.Translate(circle.Center.X, circle.Center.Y)
 	screen.DrawImage(shipImg, &opt)
 
@@ -341,6 +342,12 @@ func (s *battleGameScene) drawEquip(screen *ebiten.Image, equip *shooter.Equip) 
 		opt.GeoM.Rotate(0.5 * math.Pi)
 	}
 	opt.GeoM.Translate(center.X, center.Y)
+	if upd, ok := equip.Updater.(*shooter.EquipUpdaterExhaust); ok {
+		if upd.Alpha > 0 {
+			gb := float32(1 - upd.Alpha)
+			opt.ColorScale.Scale(1, gb, gb, 1)
+		}
+	}
 	screen.DrawImage(eqpImg, &opt)
 }
 

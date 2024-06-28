@@ -55,11 +55,11 @@ func createBuilders() map[string]builder {
 		name.TextKeyEquip3Harakiri: &harakiriSystemBuilder{
 			Interval:       300,
 			MaxCount:       1,
-			HitRadius:      16,
-			FirstSpeed:     6,
+			HitRadius:      32,
+			FirstSpeed:     4,
 			Power:          300,
 			MaxSanity:      3,
-			AimingInterval: 120,
+			AimingInterval: 240,
 		},
 		name.TextKeyEquip4Barrier: &barrierBuilder{
 			HitRadius:  48,

@@ -402,6 +402,7 @@ type HarakiriSystem struct {
 	RemainingSanity int
 	Cruising        bool
 	Power           int
+	angle           float64
 }
 
 func (h *HarakiriSystem) Update() {
@@ -410,6 +411,7 @@ func (h *HarakiriSystem) Update() {
 	}
 
 	h.Hit.Center = h.Hit.Center.Add(h.Velocity)
+	h.angle -= 0.5
 }
 
 func (h *HarakiriSystem) Launch(start geom.PointF, angle float64, sanity int) {
@@ -417,6 +419,8 @@ func (h *HarakiriSystem) Launch(start geom.PointF, angle float64, sanity int) {
 	h.Hit.Center = start
 	h.Velocity = geom.PointFFromPolar(h.FirstSpeed, angle)
 	h.RemainingSanity = sanity
+	h.WaitToAim = h.AimingInterval / 2
+	h.angle = angle
 }
 
 func (h *HarakiriSystem) IsLiving() bool {
@@ -524,7 +528,7 @@ func (h *HarakiriSystem) Position() geom.PointF {
 }
 
 func (h *HarakiriSystem) Angle() float64 {
-	return h.Velocity.Angle()
+	return h.angle
 }
 
 func (h *HarakiriSystem) VisibleF() float64 {
@@ -612,9 +616,16 @@ type EquipUpdaterExhaust struct {
 	Myship     *MyShip
 	Hit        geom.Circle
 	Multiplier float64
+	Alpha      float64
 }
 
 func (u *EquipUpdaterExhaust) Update(equip *Equip) {
+	if u.Alpha > 0 {
+		u.Alpha -= 0.01
+	}
+	if u.Alpha < 0 {
+		u.Alpha = 0
+	}
 	u.Hit.Center = equip.Position
 }
 
@@ -639,6 +650,7 @@ func (u *EquipUpdaterExhaust) IsEnemy() bool {
 }
 
 func (u *EquipUpdaterExhaust) Damage(value int) float64 {
+	u.Alpha = 1
 	return u.Myship.Damage(int(float64(value)*u.Multiplier)) * 0.5
 }
 
