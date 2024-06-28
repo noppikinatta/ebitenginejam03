@@ -398,28 +398,30 @@ func (s *battleGameScene) drawEnemyList(screen *ebiten.Image) {
 	screenSize := geom.PointFFromPoint(screen.Bounds().Size())
 	s.drawRect(screen, geom.PointF{X: leftOffset}, screenSize, v)
 
+	enemyImg := drawing.Image(name.ImgKeyEnemy)
+	enemyImgSize := geom.PointFFromPoint(enemyImg.Bounds().Size())
+
 	for i, e := range s.Stage.EnemyLauncher.Enemies {
 		if e.State == shooter.EnemyStateDead {
 			continue
 		}
 
 		x := float64(i%clmCount) * clmSize
-		x += leftOffset + clmSize*0.5
+		x += leftOffset + (clmSize-enemyImgSize.X)*0.5
 		y := float64(i/clmCount) * rowSize
-		y += rowSize * 0.5
+		y += (rowSize - enemyImgSize.Y) * 0.5
 
-		circle := geom.Circle{Center: geom.PointF{X: x, Y: y}, Radius: 16}
+		opt := ebiten.DrawImageOptions{}
+		opt.GeoM.Translate(x, y)
 
-		var clr color.Color
 		if e.State == shooter.EnemyStateOnStage {
-			gb := uint8(255 * float64(e.HP/e.MaxHP))
-			clr = color.RGBA{R: 255, G: gb, B: gb, A: 255}
-
+			hpp := float32(e.HP) / float32(e.MaxHP)
+			opt.ColorScale.Scale(1, hpp, hpp, 1)
 		} else {
-			clr = color.RGBA{R: 64, G: 64, B: 64, A: 128}
+			opt.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		}
 
-		s.drawCircle(screen, circle, clr, color.Transparent)
+		screen.DrawImage(enemyImg, &opt)
 	}
 }
 
