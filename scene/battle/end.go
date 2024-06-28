@@ -57,7 +57,7 @@ func (s *battleEndScene) drawTitle(screen *ebiten.Image, titleKey string, alpha 
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate((screenSize.X-titleSize.X)*0.5, 100)
 	opt.ColorScale.ScaleAlpha(float32(alpha))
-	drawing.DrawTextByKey(screen, titleKey, 32, &opt)
+	drawing.DrawTextByKey(screen, titleKey, fontSize, &opt)
 }
 
 func (s *battleEndScene) drawEpilogue(screen *ebiten.Image, epilogueKey string, alpha float64) {
@@ -69,7 +69,7 @@ func (s *battleEndScene) drawEpilogue(screen *ebiten.Image, epilogueKey string, 
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate((screenSize.X-titleSize.X)*0.5, 280)
 	opt.ColorScale.ScaleAlpha(float32(alpha))
-	drawing.DrawTextByKey(screen, epilogueKey, 32, &opt)
+	drawing.DrawTextByKey(screen, epilogueKey, fontSize, &opt)
 }
 
 func (s *battleEndScene) End() bool {
