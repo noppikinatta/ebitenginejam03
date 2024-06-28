@@ -308,40 +308,40 @@ func (s *battleGameScene) drawMyShip(screen *ebiten.Image) {
 	circle := s.Stage.MyShip.Hit
 	circle.Center = circle.Center.Add(s.StagePos)
 
-	s.drawCircle(screen, circle, color.Gray{Y: 128}, color.Gray{Y: 96})
+	s.drawCircle(screen, circle, color.Gray{Y: 96}, color.Gray{Y: 48})
+
+	shipImg := drawing.Image(name.ImgKeyMyship)
+	shipImgSize := geom.PointFFromPoint(shipImg.Bounds().Size())
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(-shipImgSize.X*0.5, -shipImgSize.Y*0.5)
+	opt.GeoM.Rotate(s.Stage.MyShip.Angle)
+	opt.GeoM.Translate(circle.Center.X, circle.Center.Y)
+	screen.DrawImage(shipImg, &opt)
+
 	for _, e := range s.Stage.MyShip.Equips {
 		s.drawEquip(screen, e)
 	}
 }
 
 func (s *battleGameScene) drawEquip(screen *ebiten.Image, equip *shooter.Equip) {
-	center := equip.Position
-
-	v := ebiten.Vertex{
-		ColorR: 0,
-		ColorG: 0.4,
-		ColorB: 0.5,
-		ColorA: 0.5,
+	if equip.Name == name.TextKeyEquip4Barrier {
+		return
 	}
 
-	topLeft := geom.PointF{
-		X: center.X - 32,
-		Y: center.Y - 32,
-	}
-	topLeft = topLeft.Add(s.StagePos)
+	center := equip.Position.Add(s.StagePos)
 
-	bottomRight := geom.PointF{
-		X: center.X + 32,
-		Y: center.Y + 32,
-	}
-	bottomRight = bottomRight.Add(s.StagePos)
-
-	s.drawRect(screen, topLeft, bottomRight, v)
+	eqpImg := drawing.Image(name.ImgKey(equip.Name))
+	eqpImgSize := geom.PointFFromPoint(eqpImg.Bounds().Size())
 
 	opt := ebiten.DrawImageOptions{}
-	opt.GeoM.Translate(topLeft.X, topLeft.Y)
-
-	drawing.DrawText(screen, fmt.Sprint(equip.Name, int(equip.Angle/math.Pi*180)), 12, &opt)
+	opt.GeoM.Translate(-eqpImgSize.X*0.5, -eqpImgSize.Y*0.5)
+	opt.GeoM.Scale(0.5, 0.5)
+	opt.GeoM.Rotate(equip.Angle + 0.5*math.Pi)
+	if equip.Name == name.TextKeyEquip1Laser {
+		opt.GeoM.Rotate(0.5 * math.Pi)
+	}
+	opt.GeoM.Translate(center.X, center.Y)
+	screen.DrawImage(eqpImg, &opt)
 }
 
 func (s *battleGameScene) drawVisibleEntities(screen *ebiten.Image) {
