@@ -366,14 +366,21 @@ func (s *battleGameScene) drawEnemies(screen *ebiten.Image) {
 
 func (s *battleGameScene) drawEnemy(screen *ebiten.Image, e *shooter.Enemy) {
 	if e.State == shooter.EnemyStateOnStage {
+		enemyImg := drawing.Image(name.ImgKeyEnemy)
+		enemyImgSize := geom.PointFFromPoint(enemyImg.Bounds().Size())
+
 		circle := e.Hit
 		circle.Center = circle.Center.Add(s.StagePos)
 
-		s.drawCircle(screen, circle, color.RGBA{R: 200, A: 255}, color.RGBA{R: 225, A: 255})
-
 		opt := ebiten.DrawImageOptions{}
+		r := s.Stage.MyShip.Hit.Center.Subtract(e.Hit.Center).Angle()
+		opt.GeoM.Translate(-enemyImgSize.X*0.5, -enemyImgSize.Y*0.5)
+		opt.GeoM.Rotate(r)
 		opt.GeoM.Translate(circle.Center.X, circle.Center.Y)
-		drawing.DrawText(screen, fmt.Sprint(e.HP), 12, &opt)
+		hpp := float32(e.HP) / float32(e.MaxHP)
+		opt.ColorScale.Scale(1, hpp, hpp, 1)
+
+		screen.DrawImage(enemyImg, &opt)
 	}
 
 	for _, b := range e.Bullets {
