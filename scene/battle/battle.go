@@ -223,6 +223,10 @@ func (s *battleGameScene) updateMyshipExplosion() {
 }
 
 func (s *battleGameScene) Draw(screen *ebiten.Image) {
+	if !s.initialized {
+		screen.Fill(color.Black)
+		return
+	}
 	s.drawBackground(screen)
 	s.drawMyShip(screen)
 	s.drawVisibleEntities(screen)
