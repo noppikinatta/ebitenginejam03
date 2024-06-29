@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/noppikinatta/ebitenginejam03/asset"
 	"github.com/noppikinatta/ebitenginejam03/drawing"
 	"github.com/noppikinatta/ebitenginejam03/geom"
 	"github.com/noppikinatta/ebitenginejam03/name"
@@ -181,7 +180,6 @@ type explosionDrawer struct {
 }
 
 func (d *explosionDrawer) Add(at geom.Circle) {
-	asset.PlaySound(asset.SEExplosion)
 	for _, e := range d.explosions {
 		if e.Alpha == 0 {
 			e.At = at

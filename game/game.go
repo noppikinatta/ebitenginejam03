@@ -2,7 +2,6 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/noppikinatta/ebitenginejam03/asset"
 	"github.com/noppikinatta/ebitenginejam03/name"
 	negodomain "github.com/noppikinatta/ebitenginejam03/nego"
 	"github.com/noppikinatta/ebitenginejam03/scene"
@@ -15,7 +14,6 @@ import (
 type Game struct {
 	scenes       *scene.Container
 	langSwitcher *langSwitcher
-	soundLoaded  bool
 }
 
 func NewGame() *Game {
@@ -41,11 +39,6 @@ func NewGame() *Game {
 }
 
 func (g *Game) Update() error {
-	if !g.soundLoaded {
-		asset.LoadSounds()
-		g.soundLoaded = true
-		asset.PlaySound(asset.BGM)
-	}
 	g.langSwitcher.Update()
 	return g.scenes.Update()
 }
