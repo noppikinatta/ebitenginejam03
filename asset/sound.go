@@ -18,7 +18,6 @@ import (
 	"bytes"
 	_ "embed"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 
@@ -109,7 +108,6 @@ func load(resource []byte, sound Sound, ftype fileType, vol float64) error {
 
 	// BGM loops
 	if sound == BGM {
-		fmt.Println("BGM LEN:", int64(len(resource)))
 		s = audio.NewInfiniteLoop(s, bgmLength) //int64(len(resource)))
 	}
 
