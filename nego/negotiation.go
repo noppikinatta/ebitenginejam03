@@ -72,37 +72,32 @@ func (n *Negotiation) updateProposals() {
 				n.Money = 0
 			}
 			n.ApprovedEquips = append(n.ApprovedEquips, p.Equip)
-			if p.Equip.Name == name.TextKeyEquip6Exhaust {
-				n.improveBeside()
-			}
+			n.updateImproved()
 		},
 	)
 }
 
-func (n *Negotiation) improveBeside() {
+func (n *Negotiation) updateImproved() {
+	for i := range n.ApprovedEquips {
+		n.ApprovedEquips[i].ImprovedByNext = false
+		n.ApprovedEquips[i].ImprovedByPrev = false
+	}
+
+	eqplen := len(n.ApprovedEquips)
+
 	for i, e := range n.ApprovedEquips {
 		if e.Name != name.TextKeyEquip6Exhaust {
 			continue
 		}
 
-		prev := i - 1
-		if prev >= 0 {
-			prevE := n.ApprovedEquips[prev]
-			if !prevE.ImprovedByNext {
-				prevE.ImprovedCount++
-				prevE.ImprovedByNext = true
-			}
-			n.ApprovedEquips[prev] = prevE
+		prev := ((i - 1) + eqplen) % eqplen
+		if prev != i {
+			n.ApprovedEquips[prev].ImprovedByNext = true
 		}
 
-		next := i + 1
-		if next < len(n.ApprovedEquips) {
-			nextE := n.ApprovedEquips[next]
-			if !nextE.ImprovedByPrev {
-				nextE.ImprovedCount++
-				nextE.ImprovedByPrev = true
-			}
-			n.ApprovedEquips[next] = nextE
+		next := (i + 1) % eqplen
+		if next != i && prev != next {
+			n.ApprovedEquips[next].ImprovedByPrev = true
 		}
 	}
 }

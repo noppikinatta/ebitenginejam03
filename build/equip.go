@@ -14,7 +14,7 @@ func BuildEquips(baseShip *shooter.MyShip, orders []*nego.Equip) {
 
 	for _, o := range orders {
 		builder := builders[o.Name]
-		builder.Build(baseShip, o.ImprovedCount)
+		builder.Build(baseShip, o.CalcedImprovedCount())
 	}
 }
 

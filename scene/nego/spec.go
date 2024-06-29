@@ -86,15 +86,15 @@ func (d *specDrawer) drawEquips(screen *ebiten.Image) {
 
 		opt.GeoM.Translate(textX, 4)
 		eqpName := lang.Text(e.Name)
-		if e.ImprovedCount > 0 {
-			eqpName += fmt.Sprintf("+%d", e.ImprovedCount)
+		if e.CalcedImprovedCount() > 0 {
+			eqpName += fmt.Sprintf("+%d", e.CalcedImprovedCount())
 		}
 		drawing.DrawText(screen, eqpName, 14, &opt)
 
 		opt.GeoM.Translate(0, 20)
 
 		eqpDesc := name.DescKey(e.Name)
-		tmplData := d.equipDesc.TemplateData(e.Name, e.ImprovedCount)
+		tmplData := d.equipDesc.TemplateData(e.Name, e.CalcedImprovedCount())
 		drawing.DrawTextTemplate(screen, eqpDesc, tmplData, 12, &opt)
 	}
 }

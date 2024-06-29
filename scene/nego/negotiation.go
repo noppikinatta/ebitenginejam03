@@ -74,6 +74,7 @@ func newNegotiationGameScene() *negotiationGameScene {
 }
 
 func (s *negotiationGameScene) Update() error {
+	s.moneyDrawer.Current = s.Negotiation.Money
 	x, _ := ebiten.CursorPosition()
 	x -= int(s.StagePos.X)
 	s.Negotiation.UpdateDecisionMaker(float64(x))
@@ -84,7 +85,6 @@ func (s *negotiationGameScene) Update() error {
 		return s.postprocess.Update()
 	}
 	s.Negotiation.UpdateOthers()
-	s.moneyDrawer.Current = s.Negotiation.Money
 	return nil
 }
 
@@ -187,8 +187,8 @@ func (s *negotiationGameScene) drawApprovedEquips(screen *ebiten.Image) {
 		opt.GeoM.Translate(equipNameLeft, 8)
 
 		name := lang.Text(e.Name)
-		if e.ImprovedCount > 0 {
-			name += fmt.Sprintf("+%d", e.ImprovedCount)
+		if e.CalcedImprovedCount() > 0 {
+			name += fmt.Sprintf("+%d", e.CalcedImprovedCount())
 		}
 		drawing.DrawText(screen, name, 12, &opt)
 	}
@@ -377,8 +377,8 @@ func (s *negotiationGameScene) End() bool {
 }
 
 func (s *negotiationGameScene) Reset() {
-	s.preprocess.Reset()
 	s.Negotiation.Reset(10000)
+	s.preprocess.Reset()
 	s.postprocess.Reset()
 }
 
